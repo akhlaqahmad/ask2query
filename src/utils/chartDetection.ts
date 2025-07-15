@@ -1,161 +1,154 @@
 
-export interface ChartData {
-  type: 'bar' | 'line' | 'pie' | 'area' | 'none';
-  data: any[];
-  xAxis: string;
-  yAxis: string;
-  title: string;
-}
-
-export interface ColumnInfo {
+export interface ColumnAnalysis {
   name: string;
-  type: 'number' | 'date' | 'text' | 'boolean';
+  type: 'number' | 'date' | 'string' | 'boolean';
+  uniqueValues: number;
   nullCount: number;
-  uniqueCount: number;
   sampleValues: any[];
 }
 
-export function analyzeColumns(columns: string[], values: any[][]): ColumnInfo[] {
-  return columns.map((column, index) => {
-    const columnValues = values.map(row => row[index]).filter(val => val !== null && val !== undefined);
-    const uniqueValues = new Set(columnValues);
+export interface ChartConfig {
+  type: 'bar' | 'line' | 'pie' | 'none';
+  xAxis?: string;
+  yAxis?: string;
+  dataKey?: string;
+  nameKey?: string;
+}
+
+export function analyzeColumns(data: any[]): ColumnAnalysis[] {
+  if (!data || data.length === 0) return [];
+  
+  const columns = Object.keys(data[0]);
+  
+  return columns.map(column => {
+    const values = data.map(row => row[column]).filter(val => val !== null && val !== undefined);
+    const uniqueValues = new Set(values).size;
+    const nullCount = data.length - values.length;
+    const sampleValues = values.slice(0, 5);
     
-    // Detect data type
-    let type: ColumnInfo['type'] = 'text';
+    // Determine column type
+    let type: 'number' | 'date' | 'string' | 'boolean' = 'string';
     
-    if (columnValues.length > 0) {
-      // Check if numeric
-      const numericValues = columnValues.filter(val => !isNaN(Number(val)) && val !== '');
-      if (numericValues.length / columnValues.length > 0.8) {
-        type = 'number';
-      }
-      // Check if date
-      else if (columnValues.some(val => !isNaN(Date.parse(String(val))))) {
-        const dateValues = columnValues.filter(val => !isNaN(Date.parse(String(val))));
-        if (dateValues.length / columnValues.length > 0.5) {
-          type = 'date';
-        }
-      }
+    if (values.length > 0) {
       // Check if boolean
-      else if (uniqueValues.size <= 2 && 
-               Array.from(uniqueValues).every(val => 
-                 ['true', 'false', '1', '0', 'yes', 'no', true, false, 1, 0].includes(val)
-               )) {
+      const booleanValues = values.filter(val => 
+        val === true || val === false || val === 'true' || val === 'false'
+      );
+      if (booleanValues.length / values.length > 0.8) {
         type = 'boolean';
+      }
+      // Check if number
+      else {
+        const numericValues = values.filter(val => {
+          const num = Number(val);
+          return !isNaN(num) && isFinite(num);
+        });
+        if (numericValues.length / values.length > 0.8) {
+          type = 'number';
+        }
+        // Check if date
+        else {
+          const dateValues = values.filter(val => {
+            const date = new Date(val);
+            return !isNaN(date.getTime());
+          });
+          if (dateValues.length / values.length > 0.8) {
+            type = 'date';
+          }
+        }
       }
     }
     
     return {
       name: column,
       type,
-      nullCount: values.length - columnValues.length,
-      uniqueCount: uniqueValues.size,
-      sampleValues: Array.from(uniqueValues).slice(0, 5)
+      uniqueValues,
+      nullCount,
+      sampleValues
     };
   });
 }
 
-export function detectChartType(columns: string[], values: any[][], columnInfo: ColumnInfo[]): ChartData {
-  if (values.length === 0 || columns.length < 2) {
-    return { type: 'none', data: [], xAxis: '', yAxis: '', title: 'No data available' };
+export function detectChartType(data: any[], columns: ColumnAnalysis[]): ChartConfig {
+  if (!data || data.length === 0 || columns.length === 0) {
+    return { type: 'none' };
   }
   
-  const numericColumns = columnInfo.filter(col => col.type === 'number');
-  const textColumns = columnInfo.filter(col => col.type === 'text');
-  const dateColumns = columnInfo.filter(col => col.type === 'date');
+  const numericColumns = columns.filter(col => col.type === 'number');
+  const dateColumns = columns.filter(col => col.type === 'date');
+  const stringColumns = columns.filter(col => col.type === 'string');
   
-  // Time series: date column + numeric column
-  if (dateColumns.length >= 1 && numericColumns.length >= 1) {
-    const dateCol = dateColumns[0];
-    const numericCol = numericColumns[0];
-    const dateIndex = columns.indexOf(dateCol.name);
-    const numericIndex = columns.indexOf(numericCol.name);
-    
-    const chartData = values
-      .filter(row => row[dateIndex] !== null && row[numericIndex] !== null)
-      .map(row => ({
-        [dateCol.name]: new Date(row[dateIndex]).toLocaleDateString(),
-        [numericCol.name]: Number(row[numericIndex])
-      }))
-      .sort((a, b) => new Date(a[dateCol.name]).getTime() - new Date(b[dateCol.name]).getTime());
-    
+  // If we have date columns and numeric columns, prefer line chart
+  if (dateColumns.length > 0 && numericColumns.length > 0) {
     return {
       type: 'line',
-      data: chartData,
-      xAxis: dateCol.name,
-      yAxis: numericCol.name,
-      title: `${numericCol.name} over ${dateCol.name}`
+      xAxis: dateColumns[0].name,
+      yAxis: numericColumns[0].name
     };
   }
   
-  // Categorical: text column + numeric column
-  if (textColumns.length >= 1 && numericColumns.length >= 1) {
-    const textCol = textColumns[0];
-    const numericCol = numericColumns[0];
-    const textIndex = columns.indexOf(textCol.name);
-    const numericIndex = columns.indexOf(numericCol.name);
-    
-    // Group by category and sum values
-    const grouped = values.reduce((acc, row) => {
-      const category = String(row[textIndex] || 'Unknown');
-      const value = Number(row[numericIndex]) || 0;
-      acc[category] = (acc[category] || 0) + value;
-      return acc;
-    }, {} as Record<string, number>);
-    
-    const chartData = Object.entries(grouped)
-      .map(([category, value]) => ({
-        [textCol.name]: category,
-        [numericCol.name]: value
-      }))
-      .sort((a, b) => b[numericCol.name] - a[numericCol.name])
-      .slice(0, 10); // Limit to top 10 categories
-    
-    return {
-      type: chartData.length <= 5 ? 'pie' : 'bar',
-      data: chartData,
-      xAxis: textCol.name,
-      yAxis: numericCol.name,
-      title: `${numericCol.name} by ${textCol.name}`
-    };
-  }
-  
-  // Simple numeric distribution
-  if (numericColumns.length >= 1) {
-    const numericCol = numericColumns[0];
-    const numericIndex = columns.indexOf(numericCol.name);
-    
-    const numericValues = values
-      .map(row => Number(row[numericIndex]))
-      .filter(val => !isNaN(val))
-      .sort((a, b) => a - b);
-    
-    if (numericValues.length > 0) {
-      // Create histogram bins
-      const min = Math.min(...numericValues);
-      const max = Math.max(...numericValues);
-      const binCount = Math.min(10, Math.ceil(Math.sqrt(numericValues.length)));
-      const binSize = (max - min) / binCount;
-      
-      const bins = Array.from({ length: binCount }, (_, i) => ({
-        range: `${(min + i * binSize).toFixed(1)}-${(min + (i + 1) * binSize).toFixed(1)}`,
-        count: 0
-      }));
-      
-      numericValues.forEach(value => {
-        const binIndex = Math.min(Math.floor((value - min) / binSize), binCount - 1);
-        bins[binIndex].count++;
-      });
-      
+  // If we have string categories and numeric values, use bar chart
+  if (stringColumns.length > 0 && numericColumns.length > 0) {
+    const categoryColumn = stringColumns.find(col => col.uniqueValues <= 20);
+    if (categoryColumn) {
       return {
         type: 'bar',
-        data: bins,
-        xAxis: 'range',
-        yAxis: 'count',
-        title: `Distribution of ${numericCol.name}`
+        xAxis: categoryColumn.name,
+        yAxis: numericColumns[0].name
       };
     }
   }
   
-  return { type: 'none', data: [], xAxis: '', yAxis: '', title: 'No suitable chart type detected' };
+  // If we have one numeric column with reasonable unique values, use pie chart
+  if (numericColumns.length === 1 && stringColumns.length === 1) {
+    const categoryColumn = stringColumns[0];
+    if (categoryColumn.uniqueValues <= 10 && categoryColumn.uniqueValues > 1) {
+      return {
+        type: 'pie',
+        dataKey: numericColumns[0].name,
+        nameKey: categoryColumn.name
+      };
+    }
+  }
+  
+  return { type: 'none' };
+}
+
+export function calculateStats(data: any[], columns: ColumnAnalysis[]) {
+  const stats = {
+    totalRecords: data.length,
+    totalColumns: columns.length,
+    numericColumns: columns.filter(col => col.type === 'number').length,
+    dateColumns: columns.filter(col => col.type === 'date').length,
+    textColumns: columns.filter(col => col.type === 'string').length,
+    booleanColumns: columns.filter(col => col.type === 'boolean').length
+  };
+  
+  // Calculate column-specific statistics
+  const columnStats = columns.map(column => {
+    const values = data.map(row => row[column.name]).filter(val => val !== null && val !== undefined);
+    
+    let min: number | undefined;
+    let max: number | undefined;
+    let avg: number | undefined;
+    
+    if (column.type === 'number' && values.length > 0) {
+      const numericValues = values.map(val => Number(val)).filter(num => !isNaN(num) && isFinite(num));
+      if (numericValues.length > 0) {
+        min = Math.min(...numericValues);
+        max = Math.max(...numericValues);
+        avg = numericValues.reduce((sum, val) => sum + val, 0) / numericValues.length;
+      }
+    }
+    
+    return {
+      ...column,
+      min,
+      max,
+      avg: avg ? Number(avg.toFixed(2)) : undefined,
+      fillRate: ((values.length / data.length) * 100).toFixed(1) + '%'
+    };
+  });
+  
+  return { ...stats, columnStats };
 }
