@@ -1,184 +1,100 @@
 
-import { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
-import { QueryInput } from "@/components/QueryInput";
-import { SQLResult } from "@/components/SQLResult";
-import { QueryResults } from "@/components/QueryResults";
-import { ExampleQueries } from "@/components/ExampleQueries";
-import { Footer } from "@/components/Footer";
+import { useEffect } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { SchemaBrowser } from "@/components/SchemaBrowser";
-import { useGenerateSQL } from "@/hooks/useGenerateSQL";
-import { DatabaseStatus } from "@/components/DatabaseStatus";
-import { useSQLiteDatabaseContext } from "@/contexts/SQLiteDatabaseContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Database, ArrowRight } from "lucide-react";
 
 const Index = () => {
-  const [query, setQuery] = useState("");
-  const [queryResult, setQueryResult] = useState<any>(null);
-  const [isSchemaBrowserOpen, setIsSchemaBrowserOpen] = useState(false);
-  const { schema } = useSQLiteDatabaseContext();
-  const { 
-    generateSQL, 
-    autoGenerateFromExample, 
-    updateSQL, 
-    clearSQL, 
-    isLoading, 
-    generatedSQL 
-  } = useGenerateSQL();
+  const { user, isLoading } = useAuth();
 
-  // Close schema browser when no database is loaded
+  // Redirect authenticated users to /app
   useEffect(() => {
-    if (!schema) {
-      setIsSchemaBrowserOpen(false);
+    if (!isLoading && user) {
+      window.location.href = '/app';
     }
-  }, [schema]);
+  }, [user, isLoading]);
 
-  // Keyboard shortcut for toggling schema browser
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'b' && schema) {
-        e.preventDefault();
-        setIsSchemaBrowserOpen(prev => !prev);
-      }
-      if (e.key === 'Escape' && isSchemaBrowserOpen) {
-        setIsSchemaBrowserOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [schema, isSchemaBrowserOpen]);
-
-  const handleGenerateSQL = () => {
-    generateSQL(query);
-    setQueryResult(null);
-  };
-
-  const handleSelectExample = (exampleQuery: string) => {
-    setQuery(exampleQuery);
-    clearSQL();
-    setQueryResult(null);
-  };
-
-  const handleAutoGenerate = async (exampleQuery: string) => {
-    setQuery(exampleQuery);
-    clearSQL();
-    setQueryResult(null);
-    await autoGenerateFromExample(exampleQuery);
-  };
-
-  const handleSqlUpdate = (newSQL: string) => {
-    updateSQL(newSQL);
-    setQueryResult(null);
-  };
-
-  const handleQueryExecuted = (result: any) => {
-    setQueryResult(result);
-  };
-
-  const handleReset = () => {
-    setQuery("");
-    clearSQL();
-    setQueryResult(null);
-  };
-
-  const handleInsertFromSchema = (text: string) => {
-    const textarea = document.querySelector('textarea[placeholder*="natural language"]') as HTMLTextAreaElement;
-    if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const newValue = query.substring(0, start) + text + query.substring(end);
-      setQuery(newValue);
-      
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + text.length, start + text.length);
-      }, 0);
-    } else {
-      setQuery(prev => prev ? `${prev} ${text}` : text);
-    }
-  };
-
-  const toggleSchemaBrowser = () => {
-    if (schema) {
-      setIsSchemaBrowserOpen(prev => !prev);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-400 mx-auto mb-4"></div>
+          <p className="text-slate-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 transition-colors duration-300">
-        <div className="min-h-screen flex flex-col">
-          <Header 
-            isSchemaBrowserOpen={isSchemaBrowserOpen}
-            onToggleSchemaBrowser={toggleSchemaBrowser}
-          />
-          
-          {/* Main Content */}
-          <main className="flex-1 flex items-center justify-center px-4 py-12">
-            <div className="w-full max-w-4xl mx-auto">
-              {/* Database Status */}
-              <div className="flex justify-end mb-6">
-                <DatabaseStatus />
-              </div>
-              
-              <div className="text-center mb-12">
-                <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
-                  Ask2Query
-                </h1>
-                <p className="text-xl md:text-2xl text-slate-300 dark:text-slate-400 font-light">
-                  Turn English into SQL
-                </p>
-                <p className="text-lg text-slate-400 dark:text-slate-500 mt-4 max-w-2xl mx-auto">
-                  Transform your natural language questions into powerful SQL queries instantly using GPT-4
-                </p>
-                {schema && (
-                  <p className="text-sm text-slate-500 dark:text-slate-600 mt-2">
-                    Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl+B</kbd> to toggle schema browser
-                  </p>
-                )}
-              </div>
-              
-              <QueryInput 
-                value={query}
-                onChange={setQuery}
-                onGenerate={handleGenerateSQL}
-                onReset={handleReset}
-                isLoading={isLoading}
-              />
-              
-              <SQLResult 
-                sql={generatedSQL}
-                isVisible={!!generatedSQL}
-                onSqlUpdate={handleSqlUpdate}
-                onQueryExecuted={handleQueryExecuted}
-              />
-              
-              <QueryResults
-                result={queryResult}
-                isVisible={!!queryResult}
-              />
-              
-              {!generatedSQL && (
-                <ExampleQueries 
-                  onSelectExample={handleSelectExample}
-                  onAutoGenerate={handleAutoGenerate}
-                  isLoading={isLoading}
-                />
-              )}
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+        <div className="text-center max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-16">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg mx-auto w-fit mb-8">
+              <Database className="h-12 w-12 text-white" />
             </div>
-          </main>
-          
-          <Footer />
-        </div>
+            <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
+              Ask2Query
+            </h1>
+            <p className="text-2xl md:text-3xl text-slate-300 font-light mb-6">
+              Turn English into SQL
+            </p>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-12">
+              Transform your natural language questions into powerful SQL queries instantly using GPT-4. 
+              Upload your database and start querying with simple English.
+            </p>
+          </div>
 
-        {/* Schema Browser */}
-        <SchemaBrowser
-          schema={schema}
-          isOpen={isSchemaBrowserOpen}
-          onClose={() => setIsSchemaBrowserOpen(false)}
-          onInsertText={handleInsertFromSchema}
-        />
+          {/* Call to Action */}
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3"
+                onClick={() => window.location.href = '/login'}
+              >
+                Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button 
+                variant="outline"
+                size="lg"
+                className="border-white/20 text-slate-300 hover:bg-white/10 hover:text-white px-8 py-3"
+                onClick={() => window.location.href = '/upload'}
+              >
+                Upload Database
+              </Button>
+            </div>
+            
+            <p className="text-sm text-slate-500">
+              Sign up to save your queries and access advanced features
+            </p>
+          </div>
+
+          {/* Features */}
+          <div className="grid md:grid-cols-3 gap-8 mt-20">
+            <div className="text-center">
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                <h3 className="text-xl font-semibold text-slate-200 mb-3">Natural Language</h3>
+                <p className="text-slate-400">Ask questions in plain English and get SQL queries back</p>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                <h3 className="text-xl font-semibold text-slate-200 mb-3">Multiple Formats</h3>
+                <p className="text-slate-400">Support for SQLite, CSV uploads, and more</p>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+                <h3 className="text-xl font-semibold text-slate-200 mb-3">AI Powered</h3>
+                <p className="text-slate-400">Powered by GPT-4 for accurate query generation</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </ThemeProvider>
   );

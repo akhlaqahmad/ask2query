@@ -1,6 +1,8 @@
 
 import { Moon, Sun, Database } from "lucide-react";
 import { SchemaBrowserToggle } from "@/components/SchemaBrowserToggle";
+import { LogoutButton } from "@/components/LogoutButton";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   isSchemaBrowserOpen?: boolean;
@@ -8,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: HeaderProps) {
+  const { user } = useAuth();
 
   return (
     <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
@@ -31,6 +34,7 @@ export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: H
               />
             )}
             
+            {user && <LogoutButton />}
           </div>
         </div>
       </div>
