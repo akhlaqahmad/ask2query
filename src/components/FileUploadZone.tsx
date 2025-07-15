@@ -2,6 +2,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Database, FileText, X } from 'lucide-react';
+import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -82,8 +83,6 @@ export function FileUploadZone({ onFileProcessed, isProcessing, uploadProgress }
 
   const processCSVFile = async (file: File): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const Papa = require('papaparse');
-      
       Papa.parse(file, {
         header: true,
         preview: 5, // Only read first 5 rows to detect schema
