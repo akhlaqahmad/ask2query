@@ -21,7 +21,7 @@ export default function DatabaseUpload() {
   };
 
   const handleBackToQuery = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   return (
