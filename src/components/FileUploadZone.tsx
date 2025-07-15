@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Database, FileText, X } from 'lucide-react';
@@ -6,6 +5,7 @@ import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { useSQLiteDatabaseContext } from '@/contexts/SQLiteDatabaseContext';
 
 interface FileUploadZoneProps {
   onFileProcessed: (filename: string, schema: any) => void;
@@ -16,6 +16,7 @@ interface FileUploadZoneProps {
 export function FileUploadZone({ onFileProcessed, isProcessing, uploadProgress }: FileUploadZoneProps) {
   const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
+  const { loadDatabase } = useSQLiteDatabaseContext();
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -52,6 +53,8 @@ export function FileUploadZone({ onFileProcessed, isProcessing, uploadProgress }
         schema = await processCSVFile(file);
       } else {
         schema = await processSQLiteFile(file);
+        // Also load the database for query execution
+        await loadDatabase(file);
       }
       
       onFileProcessed(file.name, schema);
@@ -68,7 +71,7 @@ export function FileUploadZone({ onFileProcessed, isProcessing, uploadProgress }
         variant: "destructive",
       });
     }
-  }, [onFileProcessed, toast]);
+  }, [onFileProcessed, toast, loadDatabase]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -181,6 +184,9 @@ export function FileUploadZone({ onFileProcessed, isProcessing, uploadProgress }
                 </p>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Supports SQLite (.db, .sqlite, .sqlite3) and CSV files up to 10MB
+                </p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">
+                  SQLite files will be loaded for real query execution
                 </p>
               </div>
             </>

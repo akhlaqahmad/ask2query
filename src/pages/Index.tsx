@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { QueryInput } from "@/components/QueryInput";
 import { SQLResult } from "@/components/SQLResult";
+import { QueryResults } from "@/components/QueryResults";
 import { ExampleQueries } from "@/components/ExampleQueries";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -11,6 +12,7 @@ import { DatabaseStatus } from "@/components/DatabaseStatus";
 
 const Index = () => {
   const [query, setQuery] = useState("");
+  const [queryResult, setQueryResult] = useState<any>(null);
   const { 
     generateSQL, 
     autoGenerateFromExample, 
@@ -22,28 +24,39 @@ const Index = () => {
 
   const handleGenerateSQL = () => {
     generateSQL(query);
+    // Clear previous query results when generating new SQL
+    setQueryResult(null);
   };
 
   const handleSelectExample = (exampleQuery: string) => {
     setQuery(exampleQuery);
     // Clear previous results when selecting a new example
     clearSQL();
+    setQueryResult(null);
   };
 
   const handleAutoGenerate = async (exampleQuery: string) => {
     setQuery(exampleQuery);
     // Clear previous results and auto-generate
     clearSQL();
+    setQueryResult(null);
     await autoGenerateFromExample(exampleQuery);
   };
 
   const handleSqlUpdate = (newSQL: string) => {
     updateSQL(newSQL);
+    // Clear query results when SQL is manually updated
+    setQueryResult(null);
+  };
+
+  const handleQueryExecuted = (result: any) => {
+    setQueryResult(result);
   };
 
   const handleReset = () => {
     setQuery("");
     clearSQL();
+    setQueryResult(null);
   };
 
   return (
@@ -84,6 +97,12 @@ const Index = () => {
                 sql={generatedSQL}
                 isVisible={!!generatedSQL}
                 onSqlUpdate={handleSqlUpdate}
+                onQueryExecuted={handleQueryExecuted}
+              />
+              
+              <QueryResults
+                result={queryResult}
+                isVisible={!!queryResult}
               />
               
               {!generatedSQL && (

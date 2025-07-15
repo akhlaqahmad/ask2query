@@ -1,23 +1,28 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Copy, Check, Edit3, Save, X } from "lucide-react";
+import { Copy, Check, Edit3, Save, X, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useDatabase } from '@/contexts/DatabaseContext';
+import { useSQLiteDatabaseContext } from '@/contexts/SQLiteDatabaseContext';
 
 interface SQLResultProps {
   sql: string;
   isVisible: boolean;
   onSqlUpdate?: (sql: string) => void;
+  onQueryExecuted?: (result: any) => void;
 }
 
-export function SQLResult({ sql, isVisible, onSqlUpdate }: SQLResultProps) {
+export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted }: SQLResultProps) {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedSql, setEditedSql] = useState(sql);
+  const [isExecuting, setIsExecuting] = useState(false);
   const { toast } = useToast();
+  const { isCustomDatabase } = useDatabase();
+  const { executeQuery, isDatabaseLoaded } = useSQLiteDatabaseContext();
 
   const handleCopy = async () => {
     try {
@@ -58,7 +63,52 @@ export function SQLResult({ sql, isVisible, onSqlUpdate }: SQLResultProps) {
     setIsEditing(false);
   };
 
+  const handleRunQuery = async () => {
+    if (!isDatabaseLoaded) {
+      toast({
+        title: "No database loaded",
+        description: "Please upload a SQLite database file first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsExecuting(true);
+    
+    try {
+      const result = await executeQuery(sql);
+      
+      if (onQueryExecuted) {
+        onQueryExecuted(result);
+      }
+
+      if ('message' in result) {
+        toast({
+          title: "Query failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Query executed",
+          description: `Returned ${result.rowCount} rows in ${result.executionTime.toFixed(2)}ms`,
+        });
+      }
+    } catch (error) {
+      console.error('Query execution error:', error);
+      toast({
+        title: "Execution failed",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
   if (!isVisible || !sql) return null;
+
+  const canRunQuery = isCustomDatabase && isDatabaseLoaded;
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-8 animate-fade-in">
@@ -66,6 +116,28 @@ export function SQLResult({ sql, isVisible, onSqlUpdate }: SQLResultProps) {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-white">SQL Query Generated</h3>
           <div className="flex gap-2">
+            {canRunQuery && !isEditing && (
+              <Button
+                onClick={handleRunQuery}
+                disabled={isExecuting}
+                variant="outline"
+                size="sm"
+                className="bg-green-600/20 border-green-500/40 text-green-300 hover:bg-green-600/30"
+              >
+                {isExecuting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-green-300/30 border-t-green-300 rounded-full animate-spin mr-2" />
+                    Running...
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    Run Query
+                  </>
+                )}
+              </Button>
+            )}
+            
             {!isEditing && (
               <>
                 <Button
@@ -149,7 +221,17 @@ export function SQLResult({ sql, isVisible, onSqlUpdate }: SQLResultProps) {
         
         <div className="mt-4 text-sm text-slate-400">
           <p>✓ Query generated using GPT-4</p>
-          <p>✓ Based on customers, products, and orders schema</p>
+          {isCustomDatabase ? (
+            <p>✓ Based on your uploaded database schema</p>
+          ) : (
+            <p>✓ Based on customers, products, and orders schema</p>
+          )}
+          {!canRunQuery && isCustomDatabase && (
+            <p className="text-yellow-400">⚠ Upload a SQLite file to run queries</p>
+          )}
+          {!isCustomDatabase && (
+            <p className="text-blue-400">ℹ Upload a database to run queries against your data</p>
+          )}
         </div>
       </div>
     </div>
