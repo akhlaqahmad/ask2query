@@ -35,7 +35,7 @@ export function QueryResults({ result, isVisible }: QueryResultsProps) {
     if (isError || result.rowCount === 0) return null;
     
     const columnInfo = analyzeColumns(result.columns, result.values);
-    const chartData = detectChartType(result.columns, result.values, columnInfo);
+    const chartData = detectChartType(result.columns, result.values);
     
     return { columnInfo, chartData };
   }, [result, isError]);
