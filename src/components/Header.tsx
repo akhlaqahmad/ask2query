@@ -1,7 +1,5 @@
 
 import { Moon, Sun, Database } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/components/ThemeProvider";
 import { SchemaBrowserToggle } from "@/components/SchemaBrowserToggle";
 
 interface HeaderProps {
@@ -10,7 +8,6 @@ interface HeaderProps {
 }
 
 export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: HeaderProps) {
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
@@ -34,18 +31,6 @@ export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: H
               />
             )}
             
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="text-white hover:bg-white/10"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
           </div>
         </div>
       </div>
