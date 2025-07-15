@@ -2,15 +2,24 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { QueryInput } from "@/components/QueryInput";
+import { SQLResult } from "@/components/SQLResult";
+import { ExampleQueries } from "@/components/ExampleQueries";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { useGenerateSQL } from "@/hooks/useGenerateSQL";
 
 const Index = () => {
   const [query, setQuery] = useState("");
+  const { generateSQL, isLoading, generatedSQL, setGeneratedSQL } = useGenerateSQL();
 
   const handleGenerateSQL = () => {
-    // TODO: Implement SQL generation logic
-    console.log("Generating SQL for:", query);
+    generateSQL(query);
+  };
+
+  const handleSelectExample = (exampleQuery: string) => {
+    setQuery(exampleQuery);
+    // Clear previous results when selecting a new example
+    setGeneratedSQL("");
   };
 
   return (
@@ -30,7 +39,7 @@ const Index = () => {
                   Turn English into SQL
                 </p>
                 <p className="text-lg text-slate-400 dark:text-slate-500 mt-4 max-w-2xl mx-auto">
-                  Transform your natural language questions into powerful SQL queries instantly
+                  Transform your natural language questions into powerful SQL queries instantly using GPT-4
                 </p>
               </div>
               
@@ -38,7 +47,17 @@ const Index = () => {
                 value={query}
                 onChange={setQuery}
                 onGenerate={handleGenerateSQL}
+                isLoading={isLoading}
               />
+              
+              <SQLResult 
+                sql={generatedSQL}
+                isVisible={!!generatedSQL}
+              />
+              
+              {!generatedSQL && (
+                <ExampleQueries onSelectExample={handleSelectExample} />
+              )}
             </div>
           </main>
           

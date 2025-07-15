@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, ArrowRight } from "lucide-react";
@@ -8,17 +7,15 @@ interface QueryInputProps {
   value: string;
   onChange: (value: string) => void;
   onGenerate: () => void;
+  isLoading?: boolean;
 }
 
-export function QueryInput({ value, onChange, onGenerate }: QueryInputProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleGenerate = async () => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    onGenerate();
-    setIsLoading(false);
+export function QueryInput({ value, onChange, onGenerate, isLoading = false }: QueryInputProps) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      onGenerate();
+    }
   };
 
   return (
@@ -29,6 +26,7 @@ export function QueryInput({ value, onChange, onGenerate }: QueryInputProps) {
             <Textarea
               value={value}
               onChange={(e) => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Ask anything about your data... (e.g., 'Show top 3 customers by revenue')"
               className="min-h-32 text-lg bg-white/10 dark:bg-black/20 border-white/20 text-white placeholder:text-slate-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 resize-none rounded-xl"
             />
@@ -39,11 +37,12 @@ export function QueryInput({ value, onChange, onGenerate }: QueryInputProps) {
           
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="text-sm text-slate-400 dark:text-slate-500">
-              Supports complex queries across multiple tables
+              <p>Powered by GPT-4 • Supports customers, products, and orders tables</p>
+              <p className="text-xs mt-1">Press Cmd/Ctrl + Enter to generate</p>
             </div>
             
             <Button
-              onClick={handleGenerate}
+              onClick={onGenerate}
               disabled={!value.trim() || isLoading}
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-40"
