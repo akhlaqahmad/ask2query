@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { QueryInput } from "@/components/QueryInput";
@@ -40,6 +41,11 @@ const Index = () => {
     updateSQL(newSQL);
   };
 
+  const handleReset = () => {
+    setQuery("");
+    clearSQL();
+  };
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 transition-colors duration-300">
@@ -70,6 +76,7 @@ const Index = () => {
                 value={query}
                 onChange={setQuery}
                 onGenerate={handleGenerateSQL}
+                onReset={handleReset}
                 isLoading={isLoading}
               />
               
