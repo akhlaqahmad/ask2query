@@ -36,13 +36,13 @@ const Index = () => {
               <Database className="h-12 w-12 text-white" />
             </div>
             <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
-              Ask2Query
+              Text2SQL
             </h1>
             <p className="text-2xl md:text-3xl text-slate-300 font-light mb-6">
-              Turn English into SQL
+              Transform Natural Language to SQL
             </p>
             <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-12">
-              Transform your natural language questions into powerful SQL queries instantly using GPT-4. 
+              Transform your natural language questions into powerful SQL queries instantly with AI-powered Text2SQL converter. 
               Upload your database and start querying with simple English.
             </p>
           </div>

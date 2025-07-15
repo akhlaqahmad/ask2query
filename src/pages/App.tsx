@@ -125,13 +125,13 @@ export default function App() {
                 
                 <div className="text-center mb-12">
                   <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
-                    Ask2Query
+                    Text2SQL
                   </h1>
                   <p className="text-xl md:text-2xl text-slate-300 dark:text-slate-400 font-light">
-                    Turn English into SQL
+                    Transform Natural Language to SQL
                   </p>
                   <p className="text-lg text-slate-400 dark:text-slate-500 mt-4 max-w-2xl mx-auto">
-                    Transform your natural language questions into powerful SQL queries instantly using GPT-4
+                    Transform your natural language questions into powerful SQL queries instantly with AI-powered Text2SQL converter
                   </p>
                   {schema && (
                     <p className="text-sm text-slate-500 dark:text-slate-600 mt-2">

@@ -24,8 +24,8 @@ export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: H
               <Database className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Ask2Query</h1>
-              <p className="text-sm text-slate-300 dark:text-slate-400">Turn English into SQL</p>
+              <h1 className="text-xl font-bold text-white">Text2SQL</h1>
+              <p className="text-sm text-slate-300 dark:text-slate-400">Transform Natural Language to SQL</p>
             </div>
           </div>
           

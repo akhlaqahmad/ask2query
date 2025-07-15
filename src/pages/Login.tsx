@@ -69,9 +69,9 @@ export default function Login() {
             <Database className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Ask2Query
+            Text2SQL
           </h1>
-          <p className="text-slate-300 mt-2">Turn English into SQL</p>
+          <p className="text-slate-300 mt-2">Transform Natural Language to SQL</p>
         </div>
 
         <Card className="border-slate-700 bg-slate-800/50 backdrop-blur-sm">

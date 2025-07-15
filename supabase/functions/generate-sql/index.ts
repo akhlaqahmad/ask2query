@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 const defaultDatabaseSchema = `
--- Database Schema for Ask2Query
+-- Database Schema for Text2SQL
 -- customers table
 CREATE TABLE customers (
     id SERIAL PRIMARY KEY,
