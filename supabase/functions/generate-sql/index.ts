@@ -9,7 +9,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const databaseSchema = `
+const defaultDatabaseSchema = `
 -- Database Schema for Ask2Query
 -- customers table
 CREATE TABLE customers (
@@ -39,13 +39,13 @@ CREATE TABLE orders (
 );
 `;
 
-const systemPrompt = `You are an expert SQL query generator. Your task is to convert natural language queries into valid PostgreSQL SQL queries based on the provided database schema.
+const createSystemPrompt = (schema: string) => `You are an expert SQL query generator. Your task is to convert natural language queries into valid SQL queries based on the provided database schema.
 
 Database Schema:
-${databaseSchema}
+${schema}
 
 Instructions:
-1. Generate clean, efficient PostgreSQL SQL queries
+1. Generate clean, efficient SQL queries (PostgreSQL/SQLite compatible)
 2. Use proper JOIN syntax when querying multiple tables
 3. Include appropriate WHERE clauses, ORDER BY, and LIMIT when needed
 4. Return only the SQL query without any explanation or markdown formatting
@@ -74,13 +74,19 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { query } = await req.json();
+    const { query, schema } = await req.json();
     
     if (!query || query.trim().length === 0) {
       throw new Error('Query is required');
     }
 
     console.log('Generating SQL for query:', query);
+    
+    // Use provided schema or fall back to default
+    const databaseSchema = schema || defaultDatabaseSchema;
+    console.log('Using schema:', databaseSchema ? 'Custom schema provided' : 'Default schema');
+
+    const systemPrompt = createSystemPrompt(databaseSchema);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

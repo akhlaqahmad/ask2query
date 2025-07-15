@@ -1,12 +1,22 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useDatabase } from "@/contexts/DatabaseContext";
 
 export function useGenerateSQL() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSQL, setGeneratedSQL] = useState("");
   const { toast } = useToast();
+  const { schema, isCustomDatabase } = useDatabase();
+
+  const formatSchemaForAI = (schema: any) => {
+    if (!schema || !schema.tables) return null;
+    
+    return schema.tables.map((table: any) => {
+      const columns = table.columns.map((col: any) => `${col.name} ${col.type}`).join(',\n    ');
+      return `CREATE TABLE ${table.name} (\n    ${columns}\n);`;
+    }).join('\n\n');
+  };
 
   const generateSQL = async (query: string) => {
     if (!query.trim()) {
@@ -23,8 +33,19 @@ export function useGenerateSQL() {
     try {
       console.log("Calling generate-sql function with query:", query);
       
+      const requestBody: any = { query: query.trim() };
+      
+      // Include the actual schema if we have a custom database
+      if (isCustomDatabase && schema) {
+        const formattedSchema = formatSchemaForAI(schema);
+        if (formattedSchema) {
+          requestBody.schema = formattedSchema;
+          console.log("Including custom schema:", formattedSchema);
+        }
+      }
+      
       const { data, error } = await supabase.functions.invoke('generate-sql', {
-        body: { query: query.trim() }
+        body: requestBody
       });
 
       if (error) {
