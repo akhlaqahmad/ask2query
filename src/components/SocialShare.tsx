@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 interface SocialShareProps {
   query: string;
   sql: string;
-  results?: any;
+  results?: Record<string, unknown>;
 }
 
 export function SocialShare({ query, sql, results }: SocialShareProps) {
@@ -17,7 +17,7 @@ export function SocialShare({ query, sql, results }: SocialShareProps) {
   const { toast } = useToast();
 
   const shareText = `🚀 Just generated SQL with Text2SQL!\n\n"${query}"\n\n✨ AI converted it to perfect SQL instantly!\n\nTry it yourself:`;
-  const shareUrl = 'https://text2sql.ai'; // Update with actual domain
+  const shareUrl = 'https://text2sql.my'; // Update with actual domain
 
   const handleCopyLink = async () => {
     try {
@@ -98,7 +98,7 @@ export function SocialShare({ query, sql, results }: SocialShareProps) {
                 </Badge>
                 {results && (
                   <Badge variant="outline" className="bg-green-500/10 border-green-500/30 text-green-300">
-                    {results.rowCount || 0} rows
+                    {typeof results === 'object' && results !== null && 'rowCount' in results && typeof (results as Record<string, unknown>).rowCount === 'number' ? (results as Record<string, unknown>).rowCount as number : 0} rows
                   </Badge>
                 )}
               </div>

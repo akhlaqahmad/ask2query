@@ -15,7 +15,7 @@ import { ArrowLeft, User, Lock, Activity, Database } from 'lucide-react';
 interface UserProfile {
   display_name: string | null;
   bio: string | null;
-  preferences: Record<string, any>;
+  preferences: Record<string, unknown>;
 }
 
 interface ActivityLog {
@@ -23,7 +23,7 @@ interface ActivityLog {
   activity_type: string;
   description: string;
   created_at: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 interface UserDatabase {
