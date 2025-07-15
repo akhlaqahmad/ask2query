@@ -18,14 +18,14 @@ export function useGenerateSQL() {
     }).join('\n\n');
   };
 
-  const generateSQL = async (query: string) => {
+  const generateSQL = async (query: string): Promise<string | null> => {
     if (!query.trim()) {
       toast({
         title: "Error",
         description: "Please enter a query to generate SQL",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
     setIsLoading(true);
@@ -65,6 +65,8 @@ export function useGenerateSQL() {
         description: "SQL query generated successfully",
       });
       
+      return data.sql;
+      
     } catch (error) {
       console.error("Error generating SQL:", error);
       toast({
@@ -72,13 +74,14 @@ export function useGenerateSQL() {
         description: error instanceof Error ? error.message : "Failed to generate SQL. Please try again.",
         variant: "destructive",
       });
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const autoGenerateFromExample = async (exampleQuery: string) => {
-    await generateSQL(exampleQuery);
+  const autoGenerateFromExample = async (exampleQuery: string): Promise<string | null> => {
+    return await generateSQL(exampleQuery);
   };
 
   const updateSQL = (newSQL: string) => {

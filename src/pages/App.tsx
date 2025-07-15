@@ -7,15 +7,19 @@ import { ExampleQueries } from "@/components/ExampleQueries";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SchemaBrowser } from "@/components/SchemaBrowser";
+import { QueryHistory } from "@/components/QueryHistory";
 import { useGenerateSQL } from "@/hooks/useGenerateSQL";
+import { useQueryHistory } from "@/hooks/useQueryHistory";
 import { DatabaseStatus } from "@/components/DatabaseStatus";
 import { useSQLiteDatabaseContext } from "@/contexts/SQLiteDatabaseContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [queryResult, setQueryResult] = useState<any>(null);
   const [isSchemaBrowserOpen, setIsSchemaBrowserOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const { schema } = useSQLiteDatabaseContext();
   const { 
     generateSQL, 
@@ -25,6 +29,20 @@ export default function App() {
     isLoading, 
     generatedSQL 
   } = useGenerateSQL();
+  
+  const {
+    history,
+    favorites,
+    addToHistory,
+    toggleFavorite,
+    removeFavorite,
+    clearHistory,
+    clearFavorites,
+    searchHistory,
+    searchFavorites,
+    exportHistory,
+    importHistory
+  } = useQueryHistory();
 
   // Close schema browser when no database is loaded
   useEffect(() => {
@@ -49,9 +67,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [schema, isSchemaBrowserOpen]);
 
-  const handleGenerateSQL = () => {
-    generateSQL(query);
+  const handleGenerateSQL = async () => {
+    const result = await generateSQL(query);
     setQueryResult(null);
+    if (result && query) {
+      addToHistory(query, result);
+    }
   };
 
   const handleSelectExample = (exampleQuery: string) => {
@@ -64,7 +85,10 @@ export default function App() {
     setQuery(exampleQuery);
     clearSQL();
     setQueryResult(null);
-    await autoGenerateFromExample(exampleQuery);
+    const result = await autoGenerateFromExample(exampleQuery);
+    if (result && exampleQuery) {
+      addToHistory(exampleQuery, result);
+    }
   };
 
   const handleSqlUpdate = (newSQL: string) => {
@@ -74,6 +98,14 @@ export default function App() {
 
   const handleQueryExecuted = (result: any) => {
     setQueryResult(result);
+    // Update history with results if we have a current query and SQL
+    if (query && generatedSQL && history.length > 0) {
+      const latestItem = history[0];
+      if (latestItem.naturalLanguage === query && latestItem.generatedSQL === generatedSQL) {
+        // Update the latest history item with results
+        addToHistory(query, generatedSQL, result);
+      }
+    }
   };
 
   const handleReset = () => {
@@ -99,6 +131,13 @@ export default function App() {
     }
   };
 
+  
+  const handleRunFromHistory = (item: any) => {
+    setQuery(item.naturalLanguage);
+    updateSQL(item.generatedSQL);
+    setQueryResult(item.results || null);
+  };
+
   const toggleSchemaBrowser = () => {
     if (schema) {
       setIsSchemaBrowserOpen(prev => !prev);
@@ -113,6 +152,11 @@ export default function App() {
             <Header 
               isSchemaBrowserOpen={isSchemaBrowserOpen}
               onToggleSchemaBrowser={toggleSchemaBrowser}
+              history={history}
+              favorites={favorites}
+              onRunQuery={handleRunFromHistory}
+              onToggleFavorite={toggleFavorite}
+              onOpenFullHistory={() => setIsHistoryDialogOpen(true)}
             />
             
             {/* Main Content */}
@@ -180,6 +224,31 @@ export default function App() {
             onClose={() => setIsSchemaBrowserOpen(false)}
             onInsertText={handleInsertFromSchema}
           />
+
+          {/* History Dialog */}
+          <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+            <DialogContent className="max-w-4xl max-h-[80vh] bg-slate-900 border-slate-700">
+              <DialogHeader>
+                <DialogTitle className="text-slate-100">Query History & Favorites</DialogTitle>
+              </DialogHeader>
+              <QueryHistory
+                history={history}
+                favorites={favorites}
+                onRunQuery={(item) => {
+                  handleRunFromHistory(item);
+                  setIsHistoryDialogOpen(false);
+                }}
+                onToggleFavorite={toggleFavorite}
+                onRemoveFavorite={removeFavorite}
+                onClearHistory={clearHistory}
+                onClearFavorites={clearFavorites}
+                onSearchHistory={searchHistory}
+                onSearchFavorites={searchFavorites}
+                onExportHistory={exportHistory}
+                onImportHistory={importHistory}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </ThemeProvider>
     </ProtectedRoute>

@@ -3,15 +3,30 @@ import { Moon, Sun, Database, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SchemaBrowserToggle } from "@/components/SchemaBrowserToggle";
 import { LogoutButton } from "@/components/LogoutButton";
+import { QueryHistoryDropdown } from "@/components/QueryHistoryDropdown";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { HistoryItem } from "@/hooks/useQueryHistory";
 
 interface HeaderProps {
   isSchemaBrowserOpen?: boolean;
   onToggleSchemaBrowser?: () => void;
+  history?: HistoryItem[];
+  favorites?: HistoryItem[];
+  onRunQuery?: (item: HistoryItem) => void;
+  onToggleFavorite?: (itemId: string) => void;
+  onOpenFullHistory?: () => void;
 }
 
-export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: HeaderProps) {
+export function Header({ 
+  isSchemaBrowserOpen = false, 
+  onToggleSchemaBrowser,
+  history = [],
+  favorites = [],
+  onRunQuery,
+  onToggleFavorite,
+  onOpenFullHistory
+}: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -34,6 +49,16 @@ export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: H
               <SchemaBrowserToggle
                 isOpen={isSchemaBrowserOpen}
                 onToggle={onToggleSchemaBrowser}
+              />
+            )}
+            
+            {user && onRunQuery && onToggleFavorite && onOpenFullHistory && (
+              <QueryHistoryDropdown
+                history={history}
+                favorites={favorites}
+                onRunQuery={onRunQuery}
+                onToggleFavorite={onToggleFavorite}
+                onOpenFullHistory={onOpenFullHistory}
               />
             )}
             
