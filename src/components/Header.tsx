@@ -1,11 +1,14 @@
 
-import { Moon, Sun, Database, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { SchemaBrowserToggle } from "@/components/SchemaBrowserToggle";
-import { LogoutButton } from "@/components/LogoutButton";
-import { QueryHistoryDropdown } from "@/components/QueryHistoryDropdown";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { SchemaBrowserToggle } from "./SchemaBrowserToggle";
+import { QueryHistoryDropdown } from "./QueryHistoryDropdown";
+import { LogoutButton } from "./LogoutButton";
+import { TutorialOverlay } from "./TutorialOverlay";
+import { AboutSection } from "./AboutSection";
+import { FeedbackForm } from "./FeedbackForm";
+import { PoweredByOpenAI } from "./PoweredByOpenAI";
+import { HelpCircle, Sparkles } from "lucide-react";
 import { HistoryItem } from "@/hooks/useQueryHistory";
 
 interface HeaderProps {
@@ -27,58 +30,46 @@ export function Header({
   onToggleFavorite,
   onOpenFullHistory
 }: HeaderProps) {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  useEffect(() => {
+    const hasCompletedTutorial = localStorage.getItem('text2sql_tutorial_completed');
+    if (!hasCompletedTutorial) {
+      const timer = setTimeout(() => setShowTutorial(true), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   return (
-    <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg">
-              <Database className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">Text2SQL</h1>
-              <p className="text-sm text-slate-300 dark:text-slate-400">Transform Natural Language to SQL</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {onToggleSchemaBrowser && (
-              <SchemaBrowserToggle
-                isOpen={isSchemaBrowserOpen}
-                onToggle={onToggleSchemaBrowser}
-              />
-            )}
-            
-            {user && onRunQuery && onToggleFavorite && onOpenFullHistory && (
-              <QueryHistoryDropdown
-                history={history}
-                favorites={favorites}
-                onRunQuery={onRunQuery}
-                onToggleFavorite={onToggleFavorite}
-                onOpenFullHistory={onOpenFullHistory}
-              />
-            )}
-            
-            {user && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/profile')}
-                  className="gap-2 text-white hover:bg-white/10"
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </Button>
-                <LogoutButton />
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/75">
+        <div className="container flex h-16 items-center justify-between px-4">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
-            )}
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Text2SQL
+              </h1>
+            </div>
+            <SchemaBrowserToggle isOpen={isSchemaBrowserOpen} onToggle={onToggleSchemaBrowser} />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <PoweredByOpenAI />
+            <Button variant="ghost" size="sm" onClick={() => setShowTutorial(true)} className="text-slate-400 hover:text-white">
+              <HelpCircle className="h-4 w-4 mr-2" />Help
+            </Button>
+            <AboutSection />
+            <FeedbackForm />
+            <QueryHistoryDropdown history={history} favorites={favorites} onRunQuery={onRunQuery} onToggleFavorite={onToggleFavorite} onOpenFullHistory={onOpenFullHistory} />
+            <LogoutButton />
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <TutorialOverlay isOpen={showTutorial} onClose={() => setShowTutorial(false)} onComplete={() => localStorage.setItem('text2sql_tutorial_completed', 'true')} />
+    </>
   );
 }

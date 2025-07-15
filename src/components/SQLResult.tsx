@@ -7,15 +7,18 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useDatabase } from '@/contexts/DatabaseContext';
 import { useSQLiteDatabaseContext } from '@/contexts/SQLiteDatabaseContext';
+import { SocialShare } from './SocialShare';
 
 interface SQLResultProps {
   sql: string;
   isVisible: boolean;
   onSqlUpdate?: (sql: string) => void;
   onQueryExecuted?: (result: any) => void;
+  originalQuery?: string;
+  queryResults?: any;
 }
 
-export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted }: SQLResultProps) {
+export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, originalQuery, queryResults }: SQLResultProps) {
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedSql, setEditedSql] = useState(sql);
@@ -147,7 +150,7 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted }: SQLR
   const canRunQuery = isCustomDatabase && isDatabaseLoaded;
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8 animate-fade-in">
+    <div className="w-full max-w-4xl mx-auto mt-8 animate-fade-in animate-scale-in">
       <div className="bg-white/5 dark:bg-black/20 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-white">SQL Query Generated</h3>
@@ -172,9 +175,18 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted }: SQLR
                   </>
                 )}
               </Button>
-            )}
+              )}
+
+              {/* Social Share Button */}
+              {originalQuery && !isEditing && (
+                <SocialShare 
+                  query={originalQuery} 
+                  sql={sql} 
+                  results={queryResults}
+                />
+              )}
             
-            {!isEditing && (
+              {!isEditing && (
               <>
                 <Button
                   onClick={handleEdit}

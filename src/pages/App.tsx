@@ -4,6 +4,7 @@ import { QueryInput } from "@/components/QueryInput";
 import { SQLResult } from "@/components/SQLResult";
 import { QueryResults } from "@/components/QueryResults";
 import { ExampleQueries } from "@/components/ExampleQueries";
+import { DemoMode } from "@/components/DemoMode";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SchemaBrowser } from "@/components/SchemaBrowser";
@@ -14,12 +15,16 @@ import { DatabaseStatus } from "@/components/DatabaseStatus";
 import { useSQLiteDatabaseContext } from "@/contexts/SQLiteDatabaseContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [queryResult, setQueryResult] = useState<any>(null);
   const [isSchemaBrowserOpen, setIsSchemaBrowserOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [showDemoMode, setShowDemoMode] = useState(false);
+  const [isDemoRunning, setIsDemoRunning] = useState(false);
   const { schema } = useSQLiteDatabaseContext();
   const { 
     generateSQL, 
@@ -53,6 +58,14 @@ export default function App() {
     }
   }, [schema]);
 
+  // Show demo mode for first-time users or when no query is present
+  useEffect(() => {
+    const hasSeenDemo = localStorage.getItem('text2sql_demo_seen');
+    if (!hasSeenDemo && !query.trim()) {
+      setShowDemoMode(true);
+    }
+  }, [query]);
+
   // Keyboard shortcut for toggling schema browser
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,6 +94,7 @@ export default function App() {
     setQuery(exampleQuery);
     clearSQL();
     setQueryResult(null);
+    setShowDemoMode(false);
   };
 
   const handleAutoGenerate = async (exampleQuery: string) => {
@@ -91,6 +105,34 @@ export default function App() {
     if (result && exampleQuery) {
       addToHistory(exampleQuery, result);
     }
+    setShowDemoMode(false);
+  };
+
+  const handleRunDemo = async (demoQueries: string[]) => {
+    setIsDemoRunning(true);
+    localStorage.setItem('text2sql_demo_seen', 'true');
+    
+    for (let i = 0; i < demoQueries.length; i++) {
+      const demoQuery = demoQueries[i];
+      setQuery(demoQuery);
+      clearSQL();
+      setQueryResult(null);
+      
+      // Add delay between queries for demo effect
+      if (i > 0) await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const result = await autoGenerateFromExample(demoQuery);
+      if (result && demoQuery) {
+        addToHistory(demoQuery, result);
+      }
+      
+      // If it's the last query, keep it displayed
+      if (i === demoQueries.length - 1) {
+        setShowDemoMode(false);
+      }
+    }
+    
+    setIsDemoRunning(false);
   };
 
   const handleSqlUpdate = (newSQL: string) => {
@@ -114,6 +156,7 @@ export default function App() {
     setQuery("");
     clearSQL();
     setQueryResult(null);
+    setShowDemoMode(true);
   };
 
   const handleInsertFromSchema = (text: string) => {
@@ -150,7 +193,7 @@ export default function App() {
     <ProtectedRoute>
       <ThemeProvider>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 transition-colors duration-300">
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col animate-fade-in">
             <Header 
               isSchemaBrowserOpen={isSchemaBrowserOpen}
               onToggleSchemaBrowser={toggleSchemaBrowser}
@@ -169,7 +212,7 @@ export default function App() {
                   <DatabaseStatus />
                 </div>
                 
-                <div className="text-center mb-12">
+                <div className="text-center mb-12 animate-fade-in">
                   <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
                     Text2SQL
                   </h1>
@@ -184,23 +227,52 @@ export default function App() {
                       Press <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl+B</kbd> to toggle schema browser
                     </p>
                   )}
+                  
+                  {/* Demo Mode Toggle */}
+                  {!showDemoMode && !generatedSQL && (
+                    <div className="mt-6">
+                      <Button
+                        onClick={() => setShowDemoMode(true)}
+                        variant="outline"
+                        className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Try Demo Queries
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 
-                <QueryInput 
-                  value={query}
-                  onChange={setQuery}
-                  onGenerate={handleGenerateSQL}
-                  onReset={handleReset}
-                  isLoading={isLoading}
-                  cacheSize={cacheSize}
-                  lastExecutionTime={lastExecutionTime || undefined}
-                />
+                
+                {/* Demo Mode */}
+                {showDemoMode && !generatedSQL && (
+                  <DemoMode
+                    onSelectQuery={handleSelectExample}
+                    onRunDemo={handleRunDemo}
+                    isLoading={isDemoRunning || isLoading}
+                  />
+                )}
+
+                {/* Regular Query Input */}
+                {(!showDemoMode || generatedSQL) && (
+                  <QueryInput 
+                    value={query}
+                    onChange={setQuery}
+                    onGenerate={handleGenerateSQL}
+                    onReset={handleReset}
+                    isLoading={isLoading || isDemoRunning}
+                    cacheSize={cacheSize}
+                    lastExecutionTime={lastExecutionTime || undefined}
+                  />
+                )}
                 
                 <SQLResult 
                   sql={generatedSQL}
                   isVisible={!!generatedSQL}
                   onSqlUpdate={handleSqlUpdate}
                   onQueryExecuted={handleQueryExecuted}
+                  originalQuery={query}
+                  queryResults={queryResult}
                 />
                 
                 <QueryResults
@@ -208,11 +280,11 @@ export default function App() {
                   isVisible={!!queryResult}
                 />
                 
-                {!generatedSQL && (
+                {!generatedSQL && !showDemoMode && (
                   <ExampleQueries 
                     onSelectExample={handleSelectExample}
                     onAutoGenerate={handleAutoGenerate}
-                    isLoading={isLoading}
+                    isLoading={isLoading || isDemoRunning}
                   />
                 )}
               </div>
