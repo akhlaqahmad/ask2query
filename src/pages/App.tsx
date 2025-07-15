@@ -27,7 +27,9 @@ export default function App() {
     updateSQL, 
     clearSQL, 
     isLoading, 
-    generatedSQL 
+    generatedSQL,
+    lastExecutionTime,
+    cacheSize
   } = useGenerateSQL();
   
   const {
@@ -190,6 +192,8 @@ export default function App() {
                   onGenerate={handleGenerateSQL}
                   onReset={handleReset}
                   isLoading={isLoading}
+                  cacheSize={cacheSize}
+                  lastExecutionTime={lastExecutionTime || undefined}
                 />
                 
                 <SQLResult 

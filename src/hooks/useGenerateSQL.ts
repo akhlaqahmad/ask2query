@@ -2,12 +2,15 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useDatabase } from "@/contexts/DatabaseContext";
+import { useQueryCache } from "./useQueryCache";
 
 export function useGenerateSQL() {
   const [isLoading, setIsLoading] = useState(false);
   const [generatedSQL, setGeneratedSQL] = useState("");
+  const [lastExecutionTime, setLastExecutionTime] = useState<number | null>(null);
   const { toast } = useToast();
   const { schema, isCustomDatabase } = useDatabase();
+  const { getCachedResult, setCachedResult, cacheSize } = useQueryCache();
 
   const formatSchemaForAI = (schema: any) => {
     if (!schema || !schema.tables) return null;
@@ -28,7 +31,20 @@ export function useGenerateSQL() {
       return null;
     }
 
+    // Check cache first
+    const cachedResult = getCachedResult(query);
+    if (cachedResult) {
+      console.log("Using cached result for query:", query);
+      setGeneratedSQL(cachedResult);
+      toast({
+        title: "Query Retrieved from Cache",
+        description: "Using previously generated SQL for faster response",
+      });
+      return cachedResult;
+    }
+
     setIsLoading(true);
+    const startTime = Date.now();
     
     try {
       console.log("Calling generate-sql function with query:", query);
@@ -60,18 +76,44 @@ export function useGenerateSQL() {
       console.log("Generated SQL:", data.sql);
       setGeneratedSQL(data.sql);
       
+      // Cache the result
+      setCachedResult(query, data.sql);
+      
+      const executionTime = Date.now() - startTime;
+      setLastExecutionTime(executionTime);
+      
       toast({
         title: "Success!",
-        description: "SQL query generated successfully",
+        description: `SQL query generated successfully in ${executionTime}ms`,
       });
       
       return data.sql;
       
     } catch (error) {
       console.error("Error generating SQL:", error);
+      
+      // Enhanced error handling
+      let errorMessage = "Failed to generate SQL. Please try again.";
+      let errorTitle = "Error";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('rate limit')) {
+          errorTitle = "Rate Limited";
+          errorMessage = "Too many requests. Please wait a moment before trying again.";
+        } else if (error.message.includes('network')) {
+          errorTitle = "Network Error";
+          errorMessage = "Unable to connect to the service. Please check your internet connection.";
+        } else if (error.message.includes('timeout')) {
+          errorTitle = "Timeout";
+          errorMessage = "The request took too long. Please try with a simpler query.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate SQL. Please try again.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
       return null;
@@ -99,6 +141,8 @@ export function useGenerateSQL() {
     clearSQL,
     isLoading,
     generatedSQL,
-    setGeneratedSQL
+    setGeneratedSQL,
+    lastExecutionTime,
+    cacheSize
   };
 }

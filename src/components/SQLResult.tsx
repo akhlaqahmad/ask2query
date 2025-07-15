@@ -73,6 +73,17 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted }: SQLR
       return;
     }
 
+    // Basic SQL validation
+    const sqlLower = sql.toLowerCase().trim();
+    if (!sqlLower.startsWith('select')) {
+      toast({
+        title: "Invalid SQL",
+        description: "Only SELECT queries are allowed for security reasons",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsExecuting(true);
     
     try {
@@ -83,22 +94,47 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted }: SQLR
       }
 
       if ('message' in result) {
+        // Enhanced error handling based on error type
+        let errorTitle = "Query Failed";
+        let errorDescription = result.message;
+
+        if (result.message.includes('syntax error')) {
+          errorTitle = "SQL Syntax Error";
+          errorDescription = "Please check your SQL syntax and try again.";
+        } else if (result.message.includes('no such table')) {
+          errorTitle = "Table Not Found";
+          errorDescription = "The specified table doesn't exist in your database.";
+        } else if (result.message.includes('no such column')) {
+          errorTitle = "Column Not Found";
+          errorDescription = "The specified column doesn't exist in the table.";
+        }
+
         toast({
-          title: "Query failed",
-          description: result.message,
+          title: errorTitle,
+          description: errorDescription,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Query executed",
+          title: "Query Executed Successfully",
           description: `Returned ${result.rowCount} rows in ${result.executionTime.toFixed(2)}ms`,
         });
       }
     } catch (error) {
       console.error('Query execution error:', error);
+      
+      let errorMessage = "An unexpected error occurred";
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = "Query timed out. Try a simpler query or add LIMIT clause.";
+        } else if (error.message.includes('memory')) {
+          errorMessage = "Query requires too much memory. Try filtering your results.";
+        }
+      }
+      
       toast({
-        title: "Execution failed",
-        description: "An unexpected error occurred",
+        title: "Execution Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
