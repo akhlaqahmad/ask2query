@@ -1,48 +1,29 @@
 
 import React, { useState } from 'react';
-import { Search, Database, Table, Key, Link, ChevronDown, ChevronRight, Eye, Copy } from 'lucide-react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from '@/components/ui/sidebar';
+import { Search, Database, Table, Key, Link, ChevronDown, ChevronRight, Eye, Copy, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { EnhancedDatabaseSchema, TableSchema, ColumnSchema } from '@/types/database';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { EnhancedDatabaseSchema } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 
 interface SchemaBrowserProps {
   schema: EnhancedDatabaseSchema | null;
+  isOpen: boolean;
+  onClose: () => void;
   onInsertText: (text: string) => void;
 }
 
-export function SchemaBrowser({ schema, onInsertText }: SchemaBrowserProps) {
+export function SchemaBrowser({ schema, isOpen, onClose, onInsertText }: SchemaBrowserProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
-  if (!schema) {
-    return (
-      <Sidebar className="w-80 border-r">
-        <SidebarHeader className="p-4">
-          <div className="text-center text-muted-foreground">
-            <Database className="h-8 w-8 mx-auto mb-2" />
-            <p>No database loaded</p>
-          </div>
-        </SidebarHeader>
-      </Sidebar>
-    );
-  }
+  if (!schema) return null;
 
   const filteredTables = schema.tables.filter(table =>
     table.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,62 +67,91 @@ export function SchemaBrowser({ schema, onInsertText }: SchemaBrowserProps) {
   };
 
   return (
-    <Sidebar className="w-80 border-r">
-      <SidebarHeader className="p-4 border-b">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
-            <h2 className="font-semibold">Database Schema</h2>
-          </div>
-          
-          {/* Database Statistics */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-2">
-              <div className="flex justify-between text-xs">
-                <span>Tables:</span>
-                <Badge variant="secondary">{schema.totalTables}</Badge>
+    <>
+      {/* Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Slide-out panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-96 bg-background border-l shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="p-4 border-b bg-muted/50">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                <h2 className="font-semibold">Database Schema</h2>
               </div>
-              <div className="flex justify-between text-xs">
-                <span>Size:</span>
-                <span className="text-muted-foreground">{formatFileSize(schema.fileSize)}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span>Name:</span>
-                <span className="text-muted-foreground truncate ml-2">{schema.databaseName}</span>
-              </div>
-            </CardContent>
-          </Card>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {/* Database Statistics */}
+            <Card className="mb-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span>Tables:</span>
+                  <Badge variant="secondary">{schema.totalTables}</Badge>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Size:</span>
+                  <span className="text-muted-foreground">{formatFileSize(schema.fileSize)}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span>Name:</span>
+                  <span className="text-muted-foreground truncate ml-2">{schema.databaseName}</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search tables & columns..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-8"
-            />
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search tables & columns..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-8"
+              />
+            </div>
           </div>
-        </div>
-      </SidebarHeader>
 
-      <SidebarContent className="p-4">
-        <TooltipProvider>
-          <SidebarGroup>
-            <SidebarGroupLabel>Tables ({filteredTables.length})</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
+          {/* Content */}
+          <ScrollArea className="flex-1 p-4">
+            <TooltipProvider>
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground mb-3">
+                  Tables ({filteredTables.length})
+                </div>
+                
                 {filteredTables.map((table) => (
-                  <SidebarMenuItem key={table.name}>
+                  <div key={table.name} className="border rounded-lg">
                     <Collapsible
                       open={expandedTables.has(table.name)}
                       onOpenChange={() => toggleTable(table.name)}
                     >
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="w-full justify-between group">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-between p-3 h-auto"
+                        >
                           <div className="flex items-center gap-2">
                             <Table className="h-4 w-4" />
                             <span className="font-medium">{table.name}</span>
@@ -154,11 +164,11 @@ export function SchemaBrowser({ schema, onInsertText }: SchemaBrowserProps) {
                           ) : (
                             <ChevronRight className="h-4 w-4" />
                           )}
-                        </SidebarMenuButton>
+                        </Button>
                       </CollapsibleTrigger>
                       
-                      <CollapsibleContent className="ml-4 mt-2">
-                        <div className="space-y-1">
+                      <CollapsibleContent className="px-3 pb-3">
+                        <div className="space-y-2">
                           {/* Table Actions */}
                           <div className="flex gap-1 mb-2">
                             <Tooltip>
@@ -193,45 +203,47 @@ export function SchemaBrowser({ schema, onInsertText }: SchemaBrowserProps) {
                           </div>
 
                           {/* Columns */}
-                          {table.columns.map((column) => (
-                            <div
-                              key={column.name}
-                              className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-pointer group"
-                              onClick={() => handleInsert(column.name)}
-                            >
-                              <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <div className="flex items-center gap-1">
-                                  {column.isPrimaryKey && (
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <Key className="h-3 w-3 text-yellow-600" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>Primary Key</TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                  {column.isForeignKey && (
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <Link className="h-3 w-3 text-blue-600" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        Foreign Key → {column.references?.table}.{column.references?.column}
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
+                          <div className="space-y-1">
+                            {table.columns.map((column) => (
+                              <div
+                                key={column.name}
+                                className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-pointer group"
+                                onClick={() => handleInsert(column.name)}
+                              >
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                  <div className="flex items-center gap-1">
+                                    {column.isPrimaryKey && (
+                                      <Tooltip>
+                                        <TooltipTrigger>
+                                          <Key className="h-3 w-3 text-yellow-600" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>Primary Key</TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                    {column.isForeignKey && (
+                                      <Tooltip>
+                                        <TooltipTrigger>
+                                          <Link className="h-3 w-3 text-blue-600" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          Foreign Key → {column.references?.table}.{column.references?.column}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    )}
+                                  </div>
+                                  
+                                  <span className="text-sm font-mono truncate">{column.name}</span>
                                 </div>
                                 
-                                <span className="text-sm font-mono truncate">{column.name}</span>
+                                <Badge 
+                                  variant="secondary" 
+                                  className={`text-xs ml-2 ${getTypeColor(column.type)}`}
+                                >
+                                  {column.type}
+                                </Badge>
                               </div>
-                              
-                              <Badge 
-                                variant="secondary" 
-                                className={`text-xs ml-2 ${getTypeColor(column.type)}`}
-                              >
-                                {column.type}
-                              </Badge>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
 
                           {/* Sample Data */}
                           {table.sampleData.length > 0 && (
@@ -262,13 +274,13 @@ export function SchemaBrowser({ schema, onInsertText }: SchemaBrowserProps) {
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
-                  </SidebarMenuItem>
+                  </div>
                 ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </TooltipProvider>
-      </SidebarContent>
-    </Sidebar>
+              </div>
+            </TooltipProvider>
+          </ScrollArea>
+        </div>
+      </div>
+    </>
   );
 }
