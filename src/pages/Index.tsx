@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { QueryInput } from "@/components/QueryInput";
@@ -7,6 +6,7 @@ import { ExampleQueries } from "@/components/ExampleQueries";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { useGenerateSQL } from "@/hooks/useGenerateSQL";
+import { DatabaseStatus } from "@/components/DatabaseStatus";
 
 const Index = () => {
   const [query, setQuery] = useState("");
@@ -49,6 +49,11 @@ const Index = () => {
           {/* Hero Section */}
           <main className="flex-1 flex items-center justify-center px-4 py-12">
             <div className="w-full max-w-4xl mx-auto">
+              {/* Database Status */}
+              <div className="flex justify-end mb-6">
+                <DatabaseStatus />
+              </div>
+              
               <div className="text-center mb-12">
                 <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
                   Ask2Query
