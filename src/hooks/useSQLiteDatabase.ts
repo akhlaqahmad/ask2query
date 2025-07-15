@@ -23,7 +23,13 @@ export function useSQLiteDatabase() {
   const loadDatabase = useCallback(async (file: File) => {
     setIsLoading(true);
     try {
-      const SQL = await import('sql.js');
+      // Properly initialize sql.js
+      const initSqlJs = (await import('sql.js')).default;
+      const SQL = await initSqlJs({
+        // Optional: provide path to sql-wasm.wasm file if needed
+        locateFile: (file: string) => `https://sql.js.org/dist/${file}`
+      });
+      
       const arrayBuffer = await file.arrayBuffer();
       const db = new SQL.Database(new Uint8Array(arrayBuffer));
       setDatabase(db);

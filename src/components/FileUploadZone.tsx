@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Database, FileText, X } from 'lucide-react';
@@ -116,7 +117,13 @@ export function FileUploadZone({ onFileProcessed, isProcessing, uploadProgress }
 
   const processSQLiteFile = async (file: File): Promise<any> => {
     const arrayBuffer = await file.arrayBuffer();
-    const SQL = await import('sql.js');
+    
+    // Properly initialize sql.js
+    const initSqlJs = (await import('sql.js')).default;
+    const SQL = await initSqlJs({
+      // Optional: provide path to sql-wasm.wasm file if needed
+      locateFile: (file: string) => `https://sql.js.org/dist/${file}`
+    });
     
     const db = new SQL.Database(new Uint8Array(arrayBuffer));
     
