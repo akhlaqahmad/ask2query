@@ -8,9 +8,11 @@ import { SQLiteDatabaseProvider } from "@/contexts/SQLiteDatabaseContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import AppPage from "./pages/App";
+import UserProfile from "./pages/UserProfile";
 import Login from "./pages/Login";
 import DatabaseUpload from "./pages/DatabaseUpload";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +27,22 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/app" element={<AppPage />} />
+                <Route 
+                  path="/app" 
+                  element={
+                    <ProtectedRoute>
+                      <AppPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/upload" element={<DatabaseUpload />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,8 +1,10 @@
 
-import { Moon, Sun, Database } from "lucide-react";
+import { Moon, Sun, Database, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { SchemaBrowserToggle } from "@/components/SchemaBrowserToggle";
 import { LogoutButton } from "@/components/LogoutButton";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 interface HeaderProps {
   isSchemaBrowserOpen?: boolean;
@@ -11,6 +13,7 @@ interface HeaderProps {
 
 export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: HeaderProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
@@ -34,7 +37,20 @@ export function Header({ isSchemaBrowserOpen = false, onToggleSchemaBrowser }: H
               />
             )}
             
-            {user && <LogoutButton />}
+            {user && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/profile')}
+                  className="gap-2 text-white hover:bg-white/10"
+                >
+                  <User className="h-4 w-4" />
+                  Profile
+                </Button>
+                <LogoutButton />
+              </div>
+            )}
           </div>
         </div>
       </div>

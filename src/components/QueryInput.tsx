@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, ArrowRight, RotateCcw } from "lucide-react";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 interface QueryInputProps {
   value: string;
@@ -12,11 +13,19 @@ interface QueryInputProps {
 }
 
 export function QueryInput({ value, onChange, onGenerate, onReset, isLoading = false }: QueryInputProps) {
+  const { logActivity } = useActivityLogger();
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      onGenerate();
+      handleGenerate();
     }
+  };
+
+  const handleGenerate = () => {
+    logActivity('query_execution', 'Generated SQL from natural language query', {
+      query: value
+    });
+    onGenerate();
   };
 
   return (
@@ -54,7 +63,7 @@ export function QueryInput({ value, onChange, onGenerate, onReset, isLoading = f
               </Button>
               
               <Button
-                onClick={onGenerate}
+                onClick={handleGenerate}
                 disabled={!value.trim() || isLoading}
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-40"
