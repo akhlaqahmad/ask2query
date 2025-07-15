@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { EnhancedDatabaseSchema, TableSchema, ColumnSchema } from '@/types/database';
 
 interface QueryResult {
   columns: string[];
@@ -18,6 +19,7 @@ interface QueryError {
 export function useSQLiteDatabase() {
   const [database, setDatabase] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [schema, setSchema] = useState<EnhancedDatabaseSchema | null>(null);
   const { toast } = useToast();
 
   const loadDatabase = useCallback(async (file: File) => {
@@ -34,6 +36,10 @@ export function useSQLiteDatabase() {
       const db = new SQL.Database(new Uint8Array(arrayBuffer));
       setDatabase(db);
       
+      // Extract enhanced schema
+      const enhancedSchema = await extractEnhancedSchema(db, file);
+      setSchema(enhancedSchema);
+      
       toast({
         title: "Database loaded",
         description: "SQLite database is ready for queries",
@@ -49,6 +55,84 @@ export function useSQLiteDatabase() {
       setIsLoading(false);
     }
   }, [toast]);
+
+  const extractEnhancedSchema = async (db: any, file: File): Promise<EnhancedDatabaseSchema> => {
+    const tables: TableSchema[] = [];
+    
+    // Get table names
+    const tablesResult = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+    
+    if (tablesResult.length > 0) {
+      for (const tableName of tablesResult[0].values.flat()) {
+        try {
+          // Get column info with detailed metadata
+          const columnsResult = db.exec(`PRAGMA table_info(${tableName})`);
+          const columns: ColumnSchema[] = columnsResult[0]?.values.map((row: any) => ({
+            name: row[1], // column name
+            type: row[2], // column type
+            isPrimaryKey: row[5] === 1, // pk flag
+            isForeignKey: false, // will be set below
+            isNotNull: row[3] === 1, // not null flag
+            defaultValue: row[4], // default value
+          })) || [];
+
+          // Get foreign key info
+          const fkResult = db.exec(`PRAGMA foreign_key_list(${tableName})`);
+          if (fkResult.length > 0) {
+            fkResult[0].values.forEach((fkRow: any) => {
+              const columnName = fkRow[3]; // from column
+              const referencedTable = fkRow[2]; // to table
+              const referencedColumn = fkRow[4]; // to column
+              
+              const column = columns.find(c => c.name === columnName);
+              if (column) {
+                column.isForeignKey = true;
+                column.references = {
+                  table: referencedTable,
+                  column: referencedColumn
+                };
+              }
+            });
+          }
+
+          // Get row count
+          const rowCountResult = db.exec(`SELECT COUNT(*) FROM ${tableName}`);
+          const rowCount = rowCountResult[0]?.values[0]?.[0] || 0;
+
+          // Get sample data (first 3 rows)
+          const sampleDataResult = db.exec(`SELECT * FROM ${tableName} LIMIT 3`);
+          const sampleData = sampleDataResult[0]?.values || [];
+
+          // Get relationships (simplified - based on foreign keys)
+          const relationships = columns
+            .filter(col => col.isForeignKey && col.references)
+            .map(col => ({
+              type: 'one-to-many' as const,
+              targetTable: col.references!.table,
+              column: col.name,
+              targetColumn: col.references!.column
+            }));
+
+          tables.push({
+            name: tableName as string,
+            rowCount: Number(rowCount),
+            columns,
+            sampleData,
+            relationships
+          });
+        } catch (error) {
+          console.error(`Error processing table ${tableName}:`, error);
+        }
+      }
+    }
+
+    return {
+      databaseName: file.name,
+      fileSize: file.size,
+      totalTables: tables.length,
+      tables
+    };
+  };
 
   const executeQuery = useCallback(async (sql: string): Promise<QueryResult | QueryError> => {
     if (!database) {
@@ -133,6 +217,7 @@ export function useSQLiteDatabase() {
     if (database) {
       database.close();
       setDatabase(null);
+      setSchema(null);
     }
   }, [database]);
 
@@ -141,7 +226,8 @@ export function useSQLiteDatabase() {
     executeQuery,
     closeDatabase,
     isDatabaseLoaded: !!database,
-    isLoading
+    isLoading,
+    schema
   };
 }
 
