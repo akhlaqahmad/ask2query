@@ -56,8 +56,23 @@ export function useGenerateSQL() {
     }
   };
 
+  const autoGenerateFromExample = async (exampleQuery: string) => {
+    await generateSQL(exampleQuery);
+  };
+
+  const updateSQL = (newSQL: string) => {
+    setGeneratedSQL(newSQL);
+  };
+
+  const clearSQL = () => {
+    setGeneratedSQL("");
+  };
+
   return {
     generateSQL,
+    autoGenerateFromExample,
+    updateSQL,
+    clearSQL,
     isLoading,
     generatedSQL,
     setGeneratedSQL

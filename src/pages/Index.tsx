@@ -10,7 +10,14 @@ import { useGenerateSQL } from "@/hooks/useGenerateSQL";
 
 const Index = () => {
   const [query, setQuery] = useState("");
-  const { generateSQL, isLoading, generatedSQL, setGeneratedSQL } = useGenerateSQL();
+  const { 
+    generateSQL, 
+    autoGenerateFromExample, 
+    updateSQL, 
+    clearSQL, 
+    isLoading, 
+    generatedSQL 
+  } = useGenerateSQL();
 
   const handleGenerateSQL = () => {
     generateSQL(query);
@@ -19,7 +26,18 @@ const Index = () => {
   const handleSelectExample = (exampleQuery: string) => {
     setQuery(exampleQuery);
     // Clear previous results when selecting a new example
-    setGeneratedSQL("");
+    clearSQL();
+  };
+
+  const handleAutoGenerate = async (exampleQuery: string) => {
+    setQuery(exampleQuery);
+    // Clear previous results and auto-generate
+    clearSQL();
+    await autoGenerateFromExample(exampleQuery);
+  };
+
+  const handleSqlUpdate = (newSQL: string) => {
+    updateSQL(newSQL);
   };
 
   return (
@@ -53,10 +71,15 @@ const Index = () => {
               <SQLResult 
                 sql={generatedSQL}
                 isVisible={!!generatedSQL}
+                onSqlUpdate={handleSqlUpdate}
               />
               
               {!generatedSQL && (
-                <ExampleQueries onSelectExample={handleSelectExample} />
+                <ExampleQueries 
+                  onSelectExample={handleSelectExample}
+                  onAutoGenerate={handleAutoGenerate}
+                  isLoading={isLoading}
+                />
               )}
             </div>
           </main>
