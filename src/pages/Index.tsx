@@ -9,6 +9,8 @@ import { UseCasesSection } from "@/components/UseCasesSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { CallToActionSection } from "@/components/CallToActionSection";
 import { Footer } from "@/components/Footer";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { ScrollProgress } from "@/components/ScrollProgress";
 
 const Index = () => {
   const { user, isLoading } = useAuth();
@@ -25,6 +27,23 @@ const Index = () => {
     document.documentElement.classList.add("dark");
   }, []);
 
+  // Smooth scrolling for anchor links
+  useEffect(() => {
+    const handleSmoothScroll = (e: Event) => {
+      const target = e.target as HTMLAnchorElement;
+      if (target.hash) {
+        e.preventDefault();
+        const element = document.querySelector(target.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+
+    document.addEventListener('click', handleSmoothScroll);
+    return () => document.removeEventListener('click', handleSmoothScroll);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -38,14 +57,19 @@ const Index = () => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-        <HeroSection />
-        <LiveDemoSection />
-        <FeaturesSection />
-        <UseCasesSection />
-        <TestimonialsSection />
-        <CallToActionSection />
-        <Footer />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 relative">
+        <AnimatedBackground />
+        <ScrollProgress />
+        
+        <div className="relative z-10">
+          <HeroSection />
+          <LiveDemoSection />
+          <FeaturesSection />
+          <UseCasesSection />
+          <TestimonialsSection />
+          <CallToActionSection />
+          <Footer />
+        </div>
       </div>
     </ThemeProvider>
   );
