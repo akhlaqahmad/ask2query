@@ -6,7 +6,7 @@ import { Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatSQL } from '@/utils/sqlFormatter';
 
-// Custom theme for SQL syntax highlighting
+// Custom theme for SQL syntax highlighting with proper TypeScript types
 const customSQLTheme = {
   'code[class*="language-"]': {
     color: '#e2e8f0',
@@ -14,12 +14,12 @@ const customSQLTheme = {
     fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
     fontSize: '0.875rem',
     lineHeight: '1.5',
-    whiteSpace: 'pre',
+    whiteSpace: 'pre' as const,
     wordSpacing: 'normal',
     wordBreak: 'normal',
     wordWrap: 'normal',
     tabSize: 2,
-    hyphens: 'none',
+    hyphens: 'none' as const,
   },
   'pre[class*="language-"]': {
     color: '#e2e8f0',
@@ -27,12 +27,12 @@ const customSQLTheme = {
     fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
     fontSize: '0.875rem',
     lineHeight: '1.5',
-    whiteSpace: 'pre',
+    whiteSpace: 'pre' as const,
     wordSpacing: 'normal',
     wordBreak: 'normal',
     wordWrap: 'normal',
     tabSize: 2,
-    hyphens: 'none',
+    hyphens: 'none' as const,
     padding: '1rem',
     margin: '0',
     overflow: 'auto',
