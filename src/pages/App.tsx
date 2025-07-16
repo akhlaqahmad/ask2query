@@ -17,6 +17,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function App() {
   const [query, setQuery] = useState("");
@@ -189,8 +191,19 @@ export default function App() {
     }
   };
 
+  const breadcrumbs = [
+    { name: "SQL Generator", url: "/app", current: true }
+  ];
+
   return (
     <ProtectedRoute>
+      <SEO
+        title="Text2SQL - Transform Natural Language to SQL"
+        description="Transform your natural language questions into powerful SQL queries instantly with AI-powered Text2SQL converter"
+        keywords="text2sql, sql generator, natural language to sql, ai sql, sql converter"
+        robots="index, follow"
+      />
+      <Breadcrumb items={breadcrumbs} />
       <ThemeProvider>
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 transition-colors duration-300">
           <div className="min-h-screen flex flex-col animate-fade-in">

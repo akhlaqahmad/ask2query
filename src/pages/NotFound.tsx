@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Home, Database, LogIn, User, Shield, FileText } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,6 +16,13 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950">
+      <SEO
+        title="404 - Page Not Found"
+        description="The page you're looking for doesn't exist. Navigate back to Text2SQL.my to continue using our AI-powered SQL generator."
+        robots="noindex, nofollow"
+        canonical={`https://text2sql.my${location.pathname}`}
+      />
+      
       <div className="text-center p-8 bg-black/30 rounded-2xl shadow-2xl border border-white/10 max-w-lg w-full animate-fade-in">
         <div className="flex flex-col items-center gap-2 mb-6">
           <Sparkles className="h-10 w-10 text-purple-400 mb-2" />

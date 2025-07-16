@@ -2,12 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, FileText, AlertTriangle, Shield, Scale, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function TermsOfService() {
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { name: "Terms of Service", url: "/terms", current: true }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950">
+      <SEO
+        title="Terms of Service - Usage Guidelines & Legal Terms"
+        description="Read Text2SQL.my's Terms of Service. Understanding your rights and responsibilities when using our AI-powered SQL generator service."
+        keywords="terms of service, usage guidelines, legal terms, text2sql terms, service agreement, user agreement"
+        canonical="https://text2sql.my/terms"
+        breadcrumbs={breadcrumbs}
+      />
+      
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         <div className="flex items-center gap-4 mb-8">
           <Button
@@ -19,6 +33,8 @@ export default function TermsOfService() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
+          
+          <Breadcrumb items={breadcrumbs} className="ml-4" />
         </div>
 
         <div className="text-center mb-12">
@@ -28,8 +44,8 @@ export default function TermsOfService() {
               Terms of Service
             </h1>
           </div>
-          <p className="text-slate-400 text-lg">
-            Please read these terms carefully before using Text2SQL.my
+          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+            Please read these terms carefully before using Text2SQL.my services.
           </p>
           <p className="text-slate-500 text-sm mt-2">
             Last updated: {new Date().toLocaleDateString()}

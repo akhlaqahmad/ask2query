@@ -2,12 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Shield, Database, Eye, Lock, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SEO } from "@/components/SEO";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
 
+  const breadcrumbs = [
+    { name: "Privacy Policy", url: "/privacy", current: true }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950">
+      <SEO
+        title="Privacy Policy - Your Data Security & Privacy Rights"
+        description="Learn how Text2SQL.my protects your privacy. 100% privacy-first approach with no data leaving your browser. Complete transparency on data handling."
+        keywords="privacy policy, data security, privacy rights, text2sql privacy, data protection, browser-based processing"
+        canonical="https://text2sql.my/privacy"
+        breadcrumbs={breadcrumbs}
+      />
+      
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         <div className="flex items-center gap-4 mb-8">
           <Button
@@ -19,6 +33,8 @@ export default function PrivacyPolicy() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
+          
+          <Breadcrumb items={breadcrumbs} className="ml-4" />
         </div>
 
         <div className="text-center mb-12">
@@ -28,8 +44,8 @@ export default function PrivacyPolicy() {
               Privacy Policy
             </h1>
           </div>
-          <p className="text-slate-400 text-lg">
-            Your privacy is our priority. Learn how we protect your data.
+          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+            Your privacy is our priority. Learn how we protect your data and respect your privacy rights.
           </p>
           <p className="text-slate-500 text-sm mt-2">
             Last updated: {new Date().toLocaleDateString()}
