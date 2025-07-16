@@ -19,6 +19,9 @@ import {
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// ==================== Types ====================
+export type FieldType = 'text' | 'email' | 'password';
+
 // ==================== Input Component ====================
 
 const AnimatedInput = memo(

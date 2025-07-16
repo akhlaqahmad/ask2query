@@ -7,6 +7,7 @@ import {
   Ripple,
   AuthTabs,
   TechOrbitDisplay,
+  FieldType,
 } from '@/components/ui/modern-animated-sign-in';
 
 type FormData = {
@@ -147,7 +148,7 @@ export default function AnimatedLogin() {
       {
         label: 'Email',
         required: true,
-        type: 'email',
+        type: 'email' as FieldType,
         placeholder: 'Enter your email address',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'email'),
@@ -155,7 +156,7 @@ export default function AnimatedLogin() {
       {
         label: 'Password',
         required: true,
-        type: 'password',
+        type: 'password' as FieldType,
         placeholder: 'Enter your password',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'password'),
