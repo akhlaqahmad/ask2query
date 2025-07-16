@@ -3,6 +3,7 @@ import { useState, ChangeEvent, FormEvent, ReactNode, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Database, Zap, Code, Brain, Cpu, Globe } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Ripple,
   AuthTabs,
@@ -14,6 +15,8 @@ type FormData = {
   email: string;
   password: string;
 };
+
+type FormMode = 'signin' | 'signup' | 'forgot-password';
 
 interface OrbitIcon {
   component: () => ReactNode;
@@ -82,12 +85,13 @@ const iconsArray: OrbitIcon[] = [
 ];
 
 export default function AnimatedLogin() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [mode, setMode] = useState<FormMode>('signin');
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
   });
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -112,17 +116,35 @@ export default function AnimatedLogin() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setSuccessMessage(null);
+
+    if (mode === 'forgot-password') {
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+          redirectTo: `${window.location.origin}/app`
+        });
+
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccessMessage('Password reset email sent! Check your inbox.');
+        }
+      } catch (err) {
+        setError('An unexpected error occurred');
+      }
+      return;
+    }
 
     try {
-      const { error } = isSignUp 
+      const { error } = mode === 'signup' 
         ? await signUp(formData.email, formData.password)
         : await signIn(formData.email, formData.password);
 
       if (error) {
         setError(error.message);
       } else {
-        if (isSignUp) {
-          setError('Check your email for the confirmation link!');
+        if (mode === 'signup') {
+          setSuccessMessage('Check your email for the confirmation link!');
         } else {
           navigate('/app');
         }
@@ -132,19 +154,15 @@ export default function AnimatedLogin() {
     }
   };
 
-  const toggleMode = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setIsSignUp(!isSignUp);
+  const handleModeChange = (newMode: FormMode) => {
+    setMode(newMode);
     setError(null);
+    setSuccessMessage(null);
     setFormData({ email: '', password: '' });
   };
 
-  const formFields = {
-    header: isSignUp ? 'Create Account' : 'Welcome back',
-    subHeader: isSignUp 
-      ? 'Sign up to start querying your databases' 
-      : 'Sign in to your account to continue',
-    fields: [
+  const getFormFields = () => {
+    const baseFields = [
       {
         label: 'Email',
         required: true,
@@ -152,20 +170,54 @@ export default function AnimatedLogin() {
         placeholder: 'Enter your email address',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'email'),
-      },
-      {
+      }
+    ];
+
+    if (mode !== 'forgot-password') {
+      baseFields.push({
         label: 'Password',
         required: true,
         type: 'password' as FieldType,
         placeholder: 'Enter your password',
         onChange: (event: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(event, 'password'),
-      },
-    ],
-    submitButton: isSignUp ? 'Sign Up' : 'Sign In',
-    textVariantButton: isSignUp 
-      ? 'Already have an account? Sign in' 
-      : "Don't have an account? Sign up",
+      });
+    }
+
+    return baseFields;
+  };
+
+  const formFields = {
+    header: mode === 'signin' ? 'Welcome back' : mode === 'signup' ? 'Create Account' : 'Reset Password',
+    subHeader: mode === 'signin' 
+      ? 'Sign in to your account to continue' 
+      : mode === 'signup'
+      ? 'Sign up to start querying your databases'
+      : 'Enter your email to receive a password reset link',
+    fields: getFormFields(),
+    submitButton: mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Sign Up' : 'Send Reset Email',
+    textVariantButton: mode === 'signin' 
+      ? "Don't have an account? Sign up" 
+      : mode === 'signup'
+      ? 'Already have an account? Sign in'
+      : 'Back to sign in',
+    forgotPasswordButton: mode === 'signin' ? 'Forgot your password?' : undefined,
+  };
+
+  const toggleMode = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (mode === 'signin') {
+      handleModeChange('signup');
+    } else if (mode === 'signup') {
+      handleModeChange('signin');
+    } else {
+      handleModeChange('signin');
+    }
+  };
+
+  const handleForgotPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    handleModeChange('forgot-password');
   };
 
   if (isLoading) {
@@ -195,6 +247,8 @@ export default function AnimatedLogin() {
           handleSubmit={handleSubmit}
           isLoading={isLoading}
           errorField={error}
+          successField={successMessage}
+          onForgotPassword={mode === 'signin' ? handleForgotPassword : undefined}
         />
       </span>
     </section>

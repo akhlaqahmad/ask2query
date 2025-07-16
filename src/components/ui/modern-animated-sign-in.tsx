@@ -1,4 +1,3 @@
-
 import {
   memo,
   ReactNode,
@@ -306,8 +305,6 @@ const TechOrbitDisplay = memo(function TechOrbitDisplay({
 
 // ==================== AnimatedForm Component ====================
 
-type FieldType = 'text' | 'email' | 'password';
-
 type Field = {
   label: string;
   required?: boolean;
@@ -323,10 +320,12 @@ type AnimatedFormProps = {
   submitButton: string;
   textVariantButton?: string;
   errorField?: string;
+  successField?: string;
   fieldPerRow?: number;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   googleLogin?: string;
   goTo?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onForgotPassword?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   isLoading?: boolean;
 };
 
@@ -341,10 +340,12 @@ const AnimatedForm = memo(function AnimatedForm({
   submitButton,
   textVariantButton,
   errorField,
+  successField,
   fieldPerRow = 1,
   onSubmit,
   googleLogin,
   goTo,
+  onForgotPassword,
   isLoading = false,
 }: AnimatedFormProps) {
   const [visible, setVisible] = useState<boolean>(false);
@@ -499,6 +500,9 @@ const AnimatedForm = memo(function AnimatedForm({
           {errorField && (
             <p className='text-red-500 text-sm mb-4'>{errorField}</p>
           )}
+          {successField && (
+            <p className='text-green-500 text-sm mb-4'>{successField}</p>
+          )}
         </BoxReveal>
 
         <BoxReveal
@@ -516,6 +520,20 @@ const AnimatedForm = memo(function AnimatedForm({
             <BottomGradient />
           </button>
         </BoxReveal>
+
+        {onForgotPassword && (
+          <BoxReveal boxColor='hsl(var(--skeleton))' duration={0.3}>
+            <section className='mt-3 text-center'>
+              <button
+                className='text-sm text-muted-foreground hover:text-primary hover:cursor-pointer outline-hidden hover:underline'
+                onClick={onForgotPassword}
+                type="button"
+              >
+                Forgot your password?
+              </button>
+            </section>
+          </BoxReveal>
+        )}
 
         {textVariantButton && goTo && (
           <BoxReveal boxColor='hsl(var(--skeleton))' duration={0.3}>
@@ -559,11 +577,14 @@ interface AuthTabsProps {
     }>;
     submitButton: string;
     textVariantButton?: string;
+    forgotPasswordButton?: string;
   };
   goTo: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   isLoading?: boolean;
   errorField?: string;
+  successField?: string;
+  onForgotPassword?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const AuthTabs = memo(function AuthTabs({
@@ -572,6 +593,8 @@ const AuthTabs = memo(function AuthTabs({
   handleSubmit,
   isLoading = false,
   errorField,
+  successField,
+  onForgotPassword,
 }: AuthTabsProps) {
   return (
     <div className='flex max-lg:justify-center w-full md:w-auto'>
@@ -581,9 +604,11 @@ const AuthTabs = memo(function AuthTabs({
           fieldPerRow={1}
           onSubmit={handleSubmit}
           goTo={goTo}
+          onForgotPassword={onForgotPassword}
           googleLogin='Login with Google'
           isLoading={isLoading}
           errorField={errorField}
+          successField={successField}
         />
       </div>
     </div>
