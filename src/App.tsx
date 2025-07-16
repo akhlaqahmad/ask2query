@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import AppPage from "./pages/App";
 import UserProfile from "./pages/UserProfile";
 import Login from "./pages/Login";
+import AnimatedLogin from "./pages/AnimatedLogin";
 import DatabaseUpload from "./pages/DatabaseUpload";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -27,6 +28,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/animated-login" element={<AnimatedLogin />} />
                 <Route 
                   path="/app" 
                   element={

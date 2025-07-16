@@ -55,6 +55,10 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 28% 17%;
     --sidebar-ring: 217 91% 60%;
+
+    /* New animated component variables */
+    --skeleton: 218 36% 16%;
+    --btn-border: 217 33% 18%;
   }
 
   .dark {
@@ -86,6 +90,8 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 28% 17%;
     --sidebar-ring: 217 91% 60%;
+    --skeleton: 218 36% 16%;
+    --btn-border: 217 33% 18%;
   }
 }
 
@@ -101,6 +107,13 @@
   /* Remove any light mode styles since we're dark-only */
   html {
     @apply dark;
+  }
+}
+
+@layer components {
+  .g-button {
+    @apply rounded-[var(--radius)] border;
+    border-color: hsl(var(--btn-border))
   }
 }
 

@@ -62,12 +62,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				skeleton: 'hsl(var(--skeleton))',
+				'btn-border': 'hsl(var(--btn-border))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				input: [
+					"0px 2px 3px -1px rgba(0, 0, 0, 0.1)",
+					"0px 1px 0px 0px rgba(25, 28, 33, 0.02)",
+					"0px 0px 0px 1px rgba(25, 28, 33, 0.08)",
+				].join(", "),
 			},
 			keyframes: {
 				'accordion-down': {
@@ -159,6 +168,18 @@ export default {
 					'50%': {
 						transform: 'translateY(-10px)'
 					}
+				},
+				'ripple': {
+					'0%, 100%': { transform: 'translate(-50%, -50%) scale(1)' },
+					'50%': { transform: 'translate(-50%, -50%) scale(0.9)' },
+				},
+				'orbit': {
+					'0%': {
+						transform: 'rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg)',
+					},
+					'100%': {
+						transform: 'rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg)',
+					},
 				}
 			},
 			animation: {
@@ -171,7 +192,9 @@ export default {
 				'scale-in': 'scale-in 0.4s ease-out',
 				'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite',
 				'glow': 'glow 2s ease-in-out infinite',
-				'float': 'float 3s ease-in-out infinite'
+				'float': 'float 3s ease-in-out infinite',
+				'ripple': 'ripple 2s ease calc(var(--i, 0) * 0.2s) infinite',
+				'orbit': 'orbit calc(var(--duration) * 1s) linear infinite',
 			}
 		}
 	},
