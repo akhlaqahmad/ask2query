@@ -181,19 +181,19 @@ export function FeedbackForm() {
           </Card>
 
           {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              className="bg-slate-800 border-slate-600 text-white hover:bg-slate-700"
-            >
-              Cancel
-            </Button>
+          <div className="flex flex-col gap-3">
+            <div className="text-center p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+              <p className="text-xs text-slate-400">
+                You can also reach us directly at{' '}
+                <a href="mailto:to@text2sql.my" className="text-purple-400 hover:text-purple-300 underline">
+                  to@text2sql.my
+                </a>
+              </p>
+            </div>
             <Button
               type="submit"
               disabled={isSubmitting || !message.trim()}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
             >
               {isSubmitting ? (
                 <>

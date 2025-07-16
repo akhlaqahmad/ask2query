@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { SchemaBrowser } from "@/components/SchemaBrowser";
 import { QueryHistory } from "@/components/QueryHistory";
 import { useGenerateSQL } from "@/hooks/useGenerateSQL";
-import { useQueryHistory } from "@/hooks/useQueryHistory";
+import { useQueryHistory, HistoryItem } from "@/hooks/useQueryHistory";
 import { DatabaseStatus } from "@/components/DatabaseStatus";
 import { useSQLiteDatabaseContext } from "@/contexts/SQLiteDatabaseContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -140,8 +140,8 @@ export default function App() {
     setQueryResult(null);
   };
 
-  const handleQueryExecuted = (result: any) => {
-    setQueryResult(result);
+  const handleQueryExecuted = (result: unknown) => {
+    setQueryResult(result as any);
     // Update history with results if we have a current query and SQL
     if (query && generatedSQL && history.length > 0) {
       const latestItem = history[0];
@@ -177,7 +177,7 @@ export default function App() {
   };
 
   
-  const handleRunFromHistory = (item: any) => {
+  const handleRunFromHistory = (item: HistoryItem) => {
     setQuery(item.naturalLanguage);
     updateSQL(item.generatedSQL);
     setQueryResult(item.results || null);

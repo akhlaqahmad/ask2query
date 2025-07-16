@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Home, Database, LogIn, User } from "lucide-react";
+import { Sparkles, Home, Database, LogIn, User, Shield, FileText } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -46,6 +46,16 @@ const NotFound = () => {
           <Button asChild variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
             <a href="/profile">
               <User className="h-4 w-4 mr-2" /> Profile
+            </a>
+          </Button>
+          <Button asChild variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+            <a href="/privacy">
+              <Shield className="h-4 w-4 mr-2" /> Privacy Policy
+            </a>
+          </Button>
+          <Button asChild variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20">
+            <a href="/terms">
+              <FileText className="h-4 w-4 mr-2" /> Terms of Service
             </a>
           </Button>
         </div>

@@ -37,8 +37,8 @@ export function Footer() {
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-white uppercase tracking-wide">Resources</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="/privacy" className="text-sm text-slate-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" className="text-sm text-slate-400 hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Documentation</a></li>
                 <li><a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">Support</a></li>
               </ul>
@@ -51,13 +51,18 @@ export function Footer() {
                 <Button variant="outline" size="sm" className="border-slate-600 text-slate-400 hover:bg-slate-700">
                   <Github className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="sm" className="border-slate-600 text-slate-400 hover:bg-slate-700">
-                  <Mail className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="border-slate-600 text-slate-400 hover:bg-slate-700" asChild>
+                  <a href="mailto:to@text2sql.my">
+                    <Mail className="h-4 w-4" />
+                  </a>
                 </Button>
                 <Button variant="outline" size="sm" className="border-slate-600 text-slate-400 hover:bg-slate-700">
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
+              <p className="text-xs text-slate-400">
+                <a href="mailto:to@text2sql.my" className="hover:text-white transition-colors">to@text2sql.my</a>
+              </p>
               <p className="text-xs text-slate-500">
                 Contact us for enterprise solutions and API access
               </p>

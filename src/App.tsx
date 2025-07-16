@@ -12,6 +12,8 @@ import UserProfile from "./pages/UserProfile";
 import AnimatedLogin from "./pages/AnimatedLogin";
 import DatabaseUpload from "./pages/DatabaseUpload";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -45,6 +47,8 @@ const App = () => (
                   } 
                 />
                 <Route path="/upload" element={<DatabaseUpload />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

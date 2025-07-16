@@ -186,11 +186,21 @@ export function AboutSection() {
                 Live Demo
                 <ExternalLink className="h-3 w-3 ml-1" />
               </Button>
+              <Button variant="outline" size="sm" className="bg-slate-800 border-slate-600 text-white hover:bg-slate-700" asChild>
+                <a href="/privacy">
+                  Privacy Policy
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" className="bg-slate-800 border-slate-600 text-white hover:bg-slate-700" asChild>
+                <a href="/terms">
+                  Terms of Service
+                </a>
+              </Button>
             </div>
             
             <div className="text-sm text-slate-400 text-center">
               <p>Built with ❤️ for data analysts and developers</p>
-              <p className="mt-1">© 2024 Text2SQL. Open source project.</p>
+              <p className="mt-1">© 2024 Text2SQL.my. Contact: <a href="mailto:to@text2sql.my" className="text-purple-400 hover:text-purple-300">to@text2sql.my</a></p>
             </div>
           </div>
         </div>
