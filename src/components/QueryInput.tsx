@@ -71,7 +71,7 @@ export function QueryInput({
   return (
     <TooltipProvider>
       <div className="w-full max-w-4xl mx-auto">
-        <div className="bg-white/5 dark:bg-black/20 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-2xl">
+        <div className="glass-card rounded-2xl p-8 shadow-2xl">
           <div className="space-y-6">
             <div className="relative">
               <Textarea
@@ -79,21 +79,21 @@ export function QueryInput({
                 onChange={(e) => onChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything about your data... (e.g., 'Show top 3 customers by revenue')"
-                className={`min-h-32 text-lg bg-white/10 dark:bg-black/20 border-white/20 text-white placeholder:text-slate-400 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 resize-none rounded-xl transition-colors ${
-                  lastValidation && !lastValidation.isValid ? 'border-red-400/50' : ''
+                className={`min-h-32 text-lg glass-input text-slate-100 placeholder:text-slate-400 focus:border-blue-500 resize-none rounded-xl ${
+                  lastValidation && !lastValidation.isValid ? 'border-red-400/50 focus:border-red-400' : ''
                 }`}
               />
               <div className="absolute top-4 right-4 flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger>
-                    <HelpCircle className="h-4 w-4 text-slate-400 hover:text-slate-300 cursor-help" />
+                    <HelpCircle className="h-4 w-4 text-slate-400 hover:text-slate-300 cursor-help transition-colors duration-200" />
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-sm">
-                    <div className="space-y-2 text-xs">
+                  <TooltipContent side="left" className="max-w-sm glass-card">
+                    <div className="space-y-2 text-xs text-slate-200">
                       <div><strong>Keyboard Shortcuts:</strong></div>
                       <div>• Ctrl/Cmd + Enter: Generate SQL</div>
                       <div>• Ctrl/Cmd + R: Reset form</div>
-                      <div className="pt-2 border-t">
+                      <div className="pt-2 border-t border-slate-600">
                         <strong>Tips:</strong> Be specific about what you want to find. 
                         Use phrases like "Show me...", "Find all...", "Count the..."
                       </div>
@@ -112,9 +112,9 @@ export function QueryInput({
           
           <div className="flex flex-col sm:flex-row gap-4 items-start justify-between">
             <div className="space-y-2">
-              <div className="text-sm text-slate-400 dark:text-slate-500">
+              <div className="text-sm text-slate-400">
                 <p>Powered by GPT-4 • Supports customers, products, and orders tables</p>
-                <p className="text-xs mt-1">Press Cmd/Ctrl + Enter to generate • Cmd/Ctrl + R to reset</p>
+                <p className="text-xs mt-1 text-slate-500">Press Cmd/Ctrl + Enter to generate • Cmd/Ctrl + R to reset</p>
               </div>
               
               {/* Performance Indicator */}
@@ -131,7 +131,7 @@ export function QueryInput({
                 onClick={onReset}
                 variant="outline"
                 size="lg"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-200 hover:text-slate-100 font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
@@ -141,7 +141,7 @@ export function QueryInput({
                 onClick={handleGenerate}
                 disabled={!value.trim() || isLoading || (lastValidation && !lastValidation.isValid)}
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-40"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-w-40 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">

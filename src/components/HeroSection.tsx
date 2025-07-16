@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,10 +76,10 @@ ORDER BY e.hire_date DESC;`);
       <div className="max-w-6xl mx-auto text-center space-y-12">
         {/* Logo and Title */}
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg mx-auto w-fit">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg mx-auto w-fit shadow-2xl">
             <Database className="h-12 w-12 text-white" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-bold gradient-text">
             Convert Plain English (or Bahasa) into SQL Instantly
           </h1>
           <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto">
@@ -89,7 +90,7 @@ ORDER BY e.hire_date DESC;`);
         {/* Demo Interface */}
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {/* Input */}
-          <Card className="p-6 bg-slate-800/50 border-slate-700">
+          <Card className="p-6 glass-card">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-300">Your Question</h3>
@@ -103,7 +104,7 @@ ORDER BY e.hire_date DESC;`);
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask in plain English or Bahasa Malaysia..."
-                className="min-h-[120px] bg-slate-900/50 border-slate-600 text-slate-200 placeholder:text-slate-500"
+                className="min-h-[120px] glass-input text-slate-200 placeholder:text-slate-500"
               />
               <div className="space-y-2">
                 <p className="text-xs text-slate-400">Try these examples:</p>
@@ -114,7 +115,7 @@ ORDER BY e.hire_date DESC;`);
                       variant="outline"
                       size="sm"
                       onClick={() => handleExampleSelect(example)}
-                      className="text-xs border-slate-600 text-slate-300 hover:bg-slate-700"
+                      className="text-xs bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-300 transition-all duration-200"
                     >
                       {example.length > 30 ? `${example.substring(0, 30)}...` : example}
                     </Button>
@@ -125,7 +126,7 @@ ORDER BY e.hire_date DESC;`);
           </Card>
 
           {/* Output */}
-          <Card className="p-6 bg-slate-800/50 border-slate-700">
+          <Card className="p-6 glass-card">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-300">Generated SQL</h3>
@@ -134,19 +135,19 @@ ORDER BY e.hire_date DESC;`);
                     variant="outline"
                     size="sm"
                     onClick={handleCopy}
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-300 transition-all duration-200"
                   >
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 )}
               </div>
-              <div className="min-h-[120px] bg-slate-900/50 border border-slate-600 rounded-md p-4">
+              <div className="min-h-[120px] code-block rounded-md p-4">
                 {isGenerating ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
                   </div>
                 ) : output ? (
-                  <pre className="text-sm text-green-400 whitespace-pre-wrap">{output}</pre>
+                  <pre className="text-sm text-emerald-400 whitespace-pre-wrap">{output}</pre>
                 ) : (
                   <p className="text-slate-500 text-sm">SQL will appear here...</p>
                 )}
@@ -161,7 +162,7 @@ ORDER BY e.hire_date DESC;`);
             <Button 
               size="lg"
               onClick={scrollToDemo}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             >
               Try Now
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -169,7 +170,7 @@ ORDER BY e.hire_date DESC;`);
             <Button 
               variant="outline"
               size="lg"
-              className="border-white/20 text-slate-300 hover:bg-white/10 hover:text-white px-8 py-3"
+              className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-200 hover:text-slate-100 px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
               onClick={() => window.location.href = '/app'}
             >
               Start Generating SQL Now

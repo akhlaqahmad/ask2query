@@ -20,6 +20,11 @@ const Index = () => {
     }
   }, [user, isLoading]);
 
+  // Force dark mode
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -33,7 +38,7 @@ const Index = () => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-slate-950">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
         <HeroSection />
         <LiveDemoSection />
         <FeaturesSection />

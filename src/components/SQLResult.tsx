@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -150,10 +151,10 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
   const canRunQuery = isCustomDatabase && isDatabaseLoaded;
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8 animate-fade-in animate-scale-in">
-      <div className="bg-white/5 dark:bg-black/20 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
+    <div className="w-full max-w-4xl mx-auto mt-8 animate-fade-in">
+      <div className="glass-card rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">SQL Query Generated</h3>
+          <h3 className="text-lg font-semibold text-slate-100">SQL Query Generated</h3>
           <div className="flex gap-2">
             {canRunQuery && !isEditing && (
               <Button
@@ -161,11 +162,11 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
                 disabled={isExecuting}
                 variant="outline"
                 size="sm"
-                className="bg-green-600/20 border-green-500/40 text-green-300 hover:bg-green-600/30"
+                className="bg-emerald-500/20 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30 hover:text-emerald-200 transition-all duration-200"
               >
                 {isExecuting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-green-300/30 border-t-green-300 rounded-full animate-spin mr-2" />
+                    <div className="w-4 h-4 border-2 border-emerald-300/30 border-t-emerald-300 rounded-full animate-spin mr-2" />
                     Running...
                   </>
                 ) : (
@@ -175,24 +176,24 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
                   </>
                 )}
               </Button>
-              )}
+            )}
 
-              {/* Social Share Button */}
-              {originalQuery && !isEditing && (
-                <SocialShare 
-                  query={originalQuery} 
-                  sql={sql} 
-                  results={queryResults}
-                />
-              )}
+            {/* Social Share Button */}
+            {originalQuery && !isEditing && (
+              <SocialShare 
+                query={originalQuery} 
+                sql={sql} 
+                results={queryResults}
+              />
+            )}
             
-              {!isEditing && (
+            {!isEditing && (
               <>
                 <Button
                   onClick={handleEdit}
                   variant="outline"
                   size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-200 hover:text-slate-100 transition-all duration-200"
                 >
                   <Edit3 className="h-4 w-4 mr-2" />
                   Edit
@@ -201,7 +202,7 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
                   onClick={handleCopy}
                   variant="outline"
                   size="sm"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-200 hover:text-slate-100 transition-all duration-200"
                 >
                   {copied ? (
                     <>
@@ -223,7 +224,7 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
                   onClick={handleSave}
                   variant="outline"
                   size="sm"
-                  className="bg-green-600/20 border-green-500/40 text-green-300 hover:bg-green-600/30"
+                  className="bg-emerald-500/20 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/30 transition-all duration-200"
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Save
@@ -232,7 +233,7 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
                   onClick={handleCancel}
                   variant="outline"
                   size="sm"
-                  className="bg-red-600/20 border-red-500/40 text-red-300 hover:bg-red-600/30"
+                  className="bg-red-500/20 border-red-500/40 text-red-300 hover:bg-red-500/30 transition-all duration-200"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Cancel
@@ -242,12 +243,12 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
           </div>
         </div>
         
-        <div className="bg-black/30 rounded-lg overflow-hidden">
+        <div className="code-block rounded-lg overflow-hidden">
           {isEditing ? (
             <Textarea
               value={editedSql}
               onChange={(e) => setEditedSql(e.target.value)}
-              className="min-h-32 bg-transparent border-none text-white font-mono text-sm resize-none focus:ring-0"
+              className="min-h-32 bg-transparent border-none text-slate-200 font-mono text-sm resize-none focus:ring-0"
               placeholder="Edit your SQL query..."
             />
           ) : (
@@ -268,17 +269,32 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
         </div>
         
         <div className="mt-4 text-sm text-slate-400">
-          <p>✓ Query generated using GPT-4</p>
+          <p className="flex items-center gap-2">
+            <span className="text-emerald-400">✓</span>
+            Query generated using GPT-4
+          </p>
           {isCustomDatabase ? (
-            <p>✓ Based on your uploaded database schema</p>
+            <p className="flex items-center gap-2">
+              <span className="text-emerald-400">✓</span>
+              Based on your uploaded database schema
+            </p>
           ) : (
-            <p>✓ Based on customers, products, and orders schema</p>
+            <p className="flex items-center gap-2">
+              <span className="text-emerald-400">✓</span>
+              Based on customers, products, and orders schema
+            </p>
           )}
           {!canRunQuery && isCustomDatabase && (
-            <p className="text-yellow-400">⚠ Upload a SQLite file to run queries</p>
+            <p className="flex items-center gap-2 text-amber-400">
+              <span>⚠</span>
+              Upload a SQLite file to run queries
+            </p>
           )}
           {!isCustomDatabase && (
-            <p className="text-blue-400">ℹ Upload a database to run queries against your data</p>
+            <p className="flex items-center gap-2 text-blue-400">
+              <span>ℹ</span>
+              Upload a database to run queries against your data
+            </p>
           )}
         </div>
       </div>
