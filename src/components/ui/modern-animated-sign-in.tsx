@@ -17,6 +17,7 @@ import {
 } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { GoogleAuthButton } from './google-auth-button';
 
 // ==================== Types ====================
 export type FieldType = 'text' | 'email' | 'password';
@@ -326,6 +327,7 @@ type AnimatedFormProps = {
   googleLogin?: string;
   goTo?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onForgotPassword?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onGoogleSignIn?: () => void;
   isLoading?: boolean;
 };
 
@@ -346,6 +348,7 @@ const AnimatedForm = memo(function AnimatedForm({
   googleLogin,
   goTo,
   onForgotPassword,
+  onGoogleSignIn,
   isLoading = false,
 }: AnimatedFormProps) {
   const [visible, setVisible] = useState<boolean>(false);
@@ -401,7 +404,7 @@ const AnimatedForm = memo(function AnimatedForm({
         </BoxReveal>
       )}
 
-      {googleLogin && (
+      {googleLogin && onGoogleSignIn && (
         <>
           <BoxReveal
             boxColor='hsl(var(--skeleton))'
@@ -409,22 +412,10 @@ const AnimatedForm = memo(function AnimatedForm({
             overflow='visible'
             width='unset'
           >
-            <button
-              className='g-button group/btn bg-transparent w-full rounded-md border h-10 font-medium outline-hidden hover:cursor-pointer hover:bg-accent'
-              type='button'
-              onClick={() => console.log('Google login clicked')}
-            >
-              <span className='flex items-center justify-center w-full h-full gap-3 text-foreground'>
-                <img
-                  src='https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png'
-                  width={26}
-                  height={26}
-                  alt='Google Icon'
-                />
-                {googleLogin}
-              </span>
-              <BottomGradient />
-            </button>
+            <GoogleAuthButton
+              onClick={onGoogleSignIn}
+              isLoading={isLoading}
+            />
           </BoxReveal>
 
           <BoxReveal boxColor='hsl(var(--skeleton))' duration={0.3} width='100%'>
@@ -581,6 +572,7 @@ interface AuthTabsProps {
   };
   goTo: (event: React.MouseEvent<HTMLButtonElement>) => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  handleGoogleSignIn?: () => void;
   isLoading?: boolean;
   errorField?: string;
   successField?: string;
@@ -591,6 +583,7 @@ const AuthTabs = memo(function AuthTabs({
   formFields,
   goTo,
   handleSubmit,
+  handleGoogleSignIn,
   isLoading = false,
   errorField,
   successField,
@@ -605,7 +598,8 @@ const AuthTabs = memo(function AuthTabs({
           onSubmit={handleSubmit}
           goTo={goTo}
           onForgotPassword={onForgotPassword}
-          googleLogin='Login with Google'
+          onGoogleSignIn={handleGoogleSignIn}
+          googleLogin='Continue with Google'
           isLoading={isLoading}
           errorField={errorField}
           successField={successField}

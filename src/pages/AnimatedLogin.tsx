@@ -1,4 +1,3 @@
-
 import { useState, ChangeEvent, FormEvent, ReactNode, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -92,7 +91,7 @@ export default function AnimatedLogin() {
   });
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const { signIn, signUp, user, isLoading } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect authenticated users to /app
@@ -151,6 +150,18 @@ export default function AnimatedLogin() {
       }
     } catch (err) {
       setError('An unexpected error occurred');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError('Failed to sign in with Google');
     }
   };
 
@@ -245,6 +256,7 @@ export default function AnimatedLogin() {
           formFields={formFields}
           goTo={toggleMode}
           handleSubmit={handleSubmit}
+          handleGoogleSignIn={handleGoogleSignIn}
           isLoading={isLoading}
           errorField={error}
           successField={successMessage}
