@@ -16,8 +16,8 @@ const customSQLTheme = {
     lineHeight: '1.5',
     whiteSpace: 'pre' as const,
     wordSpacing: 'normal',
-    wordBreak: 'normal',
-    wordWrap: 'normal',
+    wordBreak: 'normal' as const,
+    wordWrap: 'normal' as const,
     tabSize: 2,
     hyphens: 'none' as const,
   },
@@ -29,8 +29,8 @@ const customSQLTheme = {
     lineHeight: '1.5',
     whiteSpace: 'pre' as const,
     wordSpacing: 'normal',
-    wordBreak: 'normal',
-    wordWrap: 'normal',
+    wordBreak: 'normal' as const,
+    wordWrap: 'normal' as const,
     tabSize: 2,
     hyphens: 'none' as const,
     padding: '1rem',
@@ -84,6 +84,7 @@ interface EnhancedSQLHighlighterProps {
   showLineNumbers?: boolean;
   animateReveal?: boolean;
   className?: string;
+  onCopy?: () => void; // Add callback for external copy handling
 }
 
 export function EnhancedSQLHighlighter({
@@ -92,8 +93,8 @@ export function EnhancedSQLHighlighter({
   showLineNumbers = false,
   animateReveal = false,
   className = '',
+  onCopy,
 }: EnhancedSQLHighlighterProps) {
-  const [copied, setCopied] = useState(false);
   const [displayedSQL, setDisplayedSQL] = useState('');
   const { toast } = useToast();
 
@@ -118,15 +119,14 @@ export function EnhancedSQLHighlighter({
     }
   }, [formattedSQL, animateReveal]);
 
-  const handleCopy = async () => {
+  // Internal copy handler
+  const handleInternalCopy = async () => {
     try {
       await navigator.clipboard.writeText(formattedSQL);
-      setCopied(true);
       toast({
         title: "SQL copied to clipboard",
         description: "The formatted SQL query has been copied",
       });
-      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
         title: "Copy failed",
@@ -145,30 +145,7 @@ export function EnhancedSQLHighlighter({
   }
 
   return (
-    <div className={`relative bg-slate-900/80 border border-slate-700 rounded-lg overflow-hidden ${className}`}>
-      {showCopyButton && (
-        <div className="absolute top-2 right-2 z-10">
-          <Button
-            onClick={handleCopy}
-            variant="outline"
-            size="sm"
-            className="bg-slate-800/80 hover:bg-slate-700 border-slate-600 text-slate-300 hover:text-slate-100 transition-all duration-200"
-          >
-            {copied ? (
-              <>
-                <Check className="h-4 w-4 mr-1" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4 mr-1" />
-                Copy
-              </>
-            )}
-          </Button>
-        </div>
-      )}
-      
+    <div className={`bg-slate-900/80 border border-slate-700 rounded-lg overflow-hidden ${className}`}>
       <SyntaxHighlighter
         language="sql"
         style={customSQLTheme}
@@ -189,5 +166,58 @@ export function EnhancedSQLHighlighter({
         {displayedSQL}
       </SyntaxHighlighter>
     </div>
+  );
+}
+
+// Export a separate copy button component for external use
+interface SQLCopyButtonProps {
+  sql: string;
+  className?: string;
+}
+
+export function SQLCopyButton({ sql, className = '' }: SQLCopyButtonProps) {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const handleCopy = async () => {
+    try {
+      const formattedSQL = formatSQL(sql);
+      await navigator.clipboard.writeText(formattedSQL);
+      setCopied(true);
+      toast({
+        title: "SQL copied to clipboard",
+        description: "The formatted SQL query has been copied",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!sql) return null;
+
+  return (
+    <Button
+      onClick={handleCopy}
+      variant="outline"
+      size="sm"
+      className={`bg-slate-800/80 hover:bg-slate-700 border-slate-600 text-slate-300 hover:text-slate-100 transition-all duration-200 ${className}`}
+    >
+      {copied ? (
+        <>
+          <Check className="h-4 w-4 mr-1" />
+          Copied
+        </>
+      ) : (
+        <>
+          <Copy className="h-4 w-4 mr-1" />
+          Copy
+        </>
+      )}
+    </Button>
   );
 }

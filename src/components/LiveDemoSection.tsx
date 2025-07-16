@@ -1,13 +1,12 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check, Play, Database } from "lucide-react";
+import { Play, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { EnhancedSQLHighlighter } from "./EnhancedSQLHighlighter";
+import { EnhancedSQLHighlighter, SQLCopyButton } from "./EnhancedSQLHighlighter";
 
 const schemas = [
   {
@@ -33,7 +32,6 @@ export function LiveDemoSection() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   const handleGenerate = () => {
@@ -52,18 +50,6 @@ LIMIT 10;`;
       setOutput(mockSQL);
       setIsGenerating(false);
     }, 2000);
-  };
-
-  const handleCopy = async () => {
-    if (output) {
-      await navigator.clipboard.writeText(output);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: "SQL copied to clipboard",
-        description: "You can now paste it in your SQL editor",
-      });
-    }
   };
 
   return (
@@ -175,15 +161,10 @@ LIMIT 10;`;
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white">Generated SQL</h3>
                   {output && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopy}
+                    <SQLCopyButton 
+                      sql={output}
                       className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                    >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      <span className="ml-2">Copy SQL</span>
-                    </Button>
+                    />
                   )}
                 </div>
 

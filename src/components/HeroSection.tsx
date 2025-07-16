@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Database, ArrowRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTypewriter } from "@/hooks/useTypewriter";
-import { EnhancedSQLHighlighter } from "./EnhancedSQLHighlighter";
+import { EnhancedSQLHighlighter, SQLCopyButton } from "./EnhancedSQLHighlighter";
 
 const exampleQueries = [
   "Show me all customers who bought more than $1000 worth of products",
@@ -178,6 +177,12 @@ ORDER BY e.hire_date DESC;`);
             <div className="space-y-4 relative z-10">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-300">Generated SQL</h3>
+                {output && (
+                  <SQLCopyButton 
+                    sql={output}
+                    className="bg-slate-800/80 hover:bg-slate-700 border-slate-600 text-slate-300 hover:text-slate-100"
+                  />
+                )}
               </div>
               
               <div className="min-h-[120px]">
@@ -189,7 +194,7 @@ ORDER BY e.hire_date DESC;`);
                 ) : output ? (
                   <EnhancedSQLHighlighter
                     sql={output}
-                    showCopyButton={true}
+                    showCopyButton={false}
                     showLineNumbers={false}
                     animateReveal={true}
                     className="min-h-[120px]"
