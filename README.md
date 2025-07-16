@@ -1,73 +1,87 @@
-# Welcome to your Lovable project
+# Text2SQL.my / Ask2Query
 
-## Project info
+**Text2SQL.my** is an AI-powered web app that converts natural language into SQL queries. Built for Malaysian developers, analysts, and businesses, it supports English and Bahasa Malaysia, works entirely in your browser, and never uploads your data.
 
-**URL**: https://lovable.dev/projects/f9e0e071-ac3f-45a6-96c5-00fad3fda2ed
+---
 
-## How can I edit this code?
+## 🚀 Features
+- Convert plain English or Bahasa to SQL instantly
+- Upload and query your own SQLite databases (processed locally)
+- Demo mode with sample queries
+- Query history and favorites (stored locally)
+- Data visualization and export
+- Social sharing for generated queries
+- Privacy-first: your data never leaves your device
+- Modern, responsive UI (dark/light mode)
+- Powered by OpenAI GPT-4, Supabase, and Firebase
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🛠️ Tech Stack
+- [React](https://react.dev/) + [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- [Supabase](https://supabase.com/) (auth, edge functions)
+- [Firebase](https://firebase.google.com/) (hosting, analytics)
+- [OpenAI GPT-4](https://openai.com/)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f9e0e071-ac3f-45a6-96c5-00fad3fda2ed) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## ⚡ Getting Started
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+### 1. **Clone the repository**
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### 2. **Install dependencies**
+```sh
+npm install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. **Set up environment variables**
+Create a `.env` file in the project root:
+```env
+VITE_OPENAI_API_KEY=your-openai-key
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+VITE_FIREBASE_API_KEY=your-firebase-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+VITE_FIREBASE_PROJECT_ID=your-firebase-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+VITE_FIREBASE_APP_ID=your-firebase-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-firebase-measurement-id
+```
 
-**Use GitHub Codespaces**
+### 4. **Run the app locally**
+```sh
+npm run dev
+```
+Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 🌐 Deployment
+- **Firebase Hosting**: Run `npm run build` then `firebase deploy`
+- **Vercel/Netlify**: Connect your repo and set environment variables in the dashboard
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📄 Legal & Privacy
+- [Privacy Policy](/privacy)
+- [Terms of Service](/terms)
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/f9e0e071-ac3f-45a6-96c5-00fad3fda2ed) and click on Share -> Publish.
+## 🤝 Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
+## 📬 Contact
+Questions, feedback, or partnership inquiries? Email us at [to@text2sql.my](mailto:to@text2sql.my)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+© 2024 Text2SQL.my. All rights reserved.
