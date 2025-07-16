@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Database, ArrowRight, Copy, Check, Sparkles } from "lucide-react";
+import { Database, ArrowRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTypewriter } from "@/hooks/useTypewriter";
+import { EnhancedSQLHighlighter } from "./EnhancedSQLHighlighter";
 
 const exampleQueries = [
   "Show me all customers who bought more than $1000 worth of products",
@@ -27,7 +27,6 @@ export function HeroSection() {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [autoTypeIndex, setAutoTypeIndex] = useState(0);
   const [showAutoType, setShowAutoType] = useState(true);
   const { toast } = useToast();
@@ -80,17 +79,7 @@ JOIN orders o ON c.id = o.customer_id
 WHERE o.total_amount > 1000
 GROUP BY c.id
 ORDER BY total_spent DESC;`;
-        
-        // Simulate character-by-character SQL appearance
-        let currentIndex = 0;
-        const interval = setInterval(() => {
-          setOutput(sql.slice(0, currentIndex + 1));
-          currentIndex++;
-          if (currentIndex >= sql.length) {
-            clearInterval(interval);
-            setIsGenerating(false);
-          }
-        }, 30);
+        setOutput(sql);
       } else if (example.includes("products") || example.includes("produk")) {
         setOutput(`SELECT p.name, SUM(oi.quantity * oi.price) as revenue
 FROM products p
@@ -98,27 +87,14 @@ JOIN order_items oi ON p.id = oi.product_id
 GROUP BY p.id, p.name
 ORDER BY revenue DESC
 LIMIT 5;`);
-        setIsGenerating(false);
       } else {
         setOutput(`SELECT e.*, e.hire_date
 FROM employees e
 WHERE e.hire_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
 ORDER BY e.hire_date DESC;`);
-        setIsGenerating(false);
       }
+      setIsGenerating(false);
     }, 1500);
-  };
-
-  const handleCopy = async () => {
-    if (output) {
-      await navigator.clipboard.writeText(output);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: "SQL copied to clipboard",
-        description: "You can now paste it in your SQL editor",
-      });
-    }
   };
 
   const scrollToDemo = () => {
@@ -202,36 +178,26 @@ ORDER BY e.hire_date DESC;`);
             <div className="space-y-4 relative z-10">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-300">Generated SQL</h3>
-                {output && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopy}
-                    className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-slate-300 transition-all duration-200 hover:scale-105"
-                  >
-                    {copied ? (
-                      <Check className="h-4 w-4 text-green-400" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
-                )}
               </div>
               
-              <div className="min-h-[120px] code-block rounded-md p-4 relative">
+              <div className="min-h-[120px]">
                 {isGenerating ? (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center h-full min-h-[120px] bg-slate-900/80 border border-slate-700 rounded-lg">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
                     <span className="ml-2 text-slate-400">Generating SQL...</span>
                   </div>
                 ) : output ? (
-                  <pre className="text-sm text-emerald-400 whitespace-pre-wrap font-mono">
-                    {output}
-                  </pre>
+                  <EnhancedSQLHighlighter
+                    sql={output}
+                    showCopyButton={true}
+                    showLineNumbers={false}
+                    animateReveal={true}
+                    className="min-h-[120px]"
+                  />
                 ) : (
-                  <p className="text-slate-500 text-sm flex items-center justify-center h-full">
-                    SQL will appear here...
-                  </p>
+                  <div className="min-h-[120px] bg-slate-900/80 border border-slate-700 rounded-lg p-4 flex items-center justify-center">
+                    <p className="text-slate-500 text-sm">SQL will appear here...</p>
+                  </div>
                 )}
               </div>
             </div>

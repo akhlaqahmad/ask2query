@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Check, Play, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { EnhancedSQLHighlighter } from "./EnhancedSQLHighlighter";
 
 const schemas = [
   {
@@ -185,13 +187,17 @@ LIMIT 10;`;
                   )}
                 </div>
 
-                <div className="min-h-[200px] bg-slate-900/50 border border-slate-600 rounded-md p-4">
+                <div className="min-h-[200px]">
                   {output ? (
-                    <pre className="text-sm text-green-400 whitespace-pre-wrap overflow-x-auto">
-                      {output}
-                    </pre>
+                    <EnhancedSQLHighlighter
+                      sql={output}
+                      showCopyButton={false}
+                      showLineNumbers={false}
+                      animateReveal={true}
+                      className="min-h-[200px]"
+                    />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-slate-500">
+                    <div className="flex items-center justify-center h-full min-h-[200px] bg-slate-900/50 border border-slate-600 rounded-md text-slate-500">
                       <div className="text-center">
                         <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>Your generated SQL will appear here</p>

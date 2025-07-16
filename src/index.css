@@ -125,4 +125,33 @@
   .hover-lift {
     @apply hover:bg-slate-700/50 transition-all duration-200;
   }
+
+  /* Enhanced SQL Syntax Highlighting */
+  .sql-keyword {
+    @apply text-blue-400 font-bold;
+  }
+  
+  .sql-function {
+    @apply text-purple-400 font-medium;
+  }
+  
+  .sql-string {
+    @apply text-green-400;
+  }
+  
+  .sql-number {
+    @apply text-orange-400;
+  }
+  
+  .sql-operator {
+    @apply text-yellow-400;
+  }
+  
+  .sql-comment {
+    @apply text-slate-500 italic;
+  }
+  
+  .sql-table {
+    @apply text-cyan-400;
+  }
 }

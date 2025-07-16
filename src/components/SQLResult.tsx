@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Copy, Check, Edit3, Save, X, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useDatabase } from '@/contexts/DatabaseContext';
 import { useSQLiteDatabaseContext } from '@/contexts/SQLiteDatabaseContext';
 import { SocialShare } from './SocialShare';
+import { EnhancedSQLHighlighter } from './EnhancedSQLHighlighter';
 
 interface SQLResultProps {
   sql: string;
@@ -243,28 +242,23 @@ export function SQLResult({ sql, isVisible, onSqlUpdate, onQueryExecuted, origin
           </div>
         </div>
         
-        <div className="code-block rounded-lg overflow-hidden">
+        <div className="rounded-lg overflow-hidden">
           {isEditing ? (
-            <Textarea
-              value={editedSql}
-              onChange={(e) => setEditedSql(e.target.value)}
-              className="min-h-32 bg-transparent border-none text-slate-200 font-mono text-sm resize-none focus:ring-0"
-              placeholder="Edit your SQL query..."
-            />
+            <div className="bg-slate-900/80 border border-slate-700 rounded-lg">
+              <Textarea
+                value={editedSql}
+                onChange={(e) => setEditedSql(e.target.value)}
+                className="min-h-32 bg-transparent border-none text-slate-200 font-mono text-sm resize-none focus:ring-0"
+                placeholder="Edit your SQL query..."
+              />
+            </div>
           ) : (
-            <SyntaxHighlighter
-              language="sql"
-              style={oneDark}
-              customStyle={{
-                margin: 0,
-                padding: '1rem',
-                background: 'transparent',
-                fontSize: '0.875rem',
-              }}
-              wrapLongLines={true}
-            >
-              {sql}
-            </SyntaxHighlighter>
+            <EnhancedSQLHighlighter
+              sql={sql}
+              showCopyButton={false}
+              showLineNumbers={false}
+              animateReveal={false}
+            />
           )}
         </div>
         
