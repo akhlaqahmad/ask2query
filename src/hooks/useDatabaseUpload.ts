@@ -9,7 +9,7 @@ export function useDatabaseUpload() {
   const { setDatabase } = useDatabase();
   const { toast } = useToast();
 
-  const processFile = async (filename: string, schema: any) => {
+  const processFile = async (filename: string, schema: any, onProcessingComplete?: () => void) => {
     setIsProcessing(true);
     setUploadProgress(0);
 
@@ -38,6 +38,10 @@ export function useDatabaseUpload() {
       setTimeout(() => {
         setIsProcessing(false);
         setUploadProgress(0);
+        // Call the completion callback if provided
+        if (onProcessingComplete) {
+          onProcessingComplete();
+        }
       }, 500);
       
     } catch (error) {

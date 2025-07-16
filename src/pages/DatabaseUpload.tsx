@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Database, Trash2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FileUploadZone } from '@/components/FileUploadZone';
+import { CountdownOverlay } from '@/components/CountdownOverlay';
 import { useDatabaseUpload } from '@/hooks/useDatabaseUpload';
 import { useDatabase } from '@/contexts/DatabaseContext';
 
@@ -11,9 +12,13 @@ export default function DatabaseUpload() {
   const navigate = useNavigate();
   const { processFile, isProcessing, uploadProgress } = useDatabaseUpload();
   const { currentDatabase, schema, removeDatabase } = useDatabase();
+  const [showCountdown, setShowCountdown] = useState(false);
 
   const handleFileProcessed = (filename: string, parsedSchema: any) => {
-    processFile(filename, parsedSchema);
+    processFile(filename, parsedSchema, () => {
+      // Show countdown overlay when processing completes
+      setShowCountdown(true);
+    });
   };
 
   const handleRemoveDatabase = () => {
@@ -21,6 +26,14 @@ export default function DatabaseUpload() {
   };
 
   const handleBackToQuery = () => {
+    navigate('/app');
+  };
+
+  const handleCountdownComplete = () => {
+    navigate('/app');
+  };
+
+  const handleSkipCountdown = () => {
     navigate('/app');
   };
 
@@ -127,6 +140,14 @@ export default function DatabaseUpload() {
           </div>
         </div>
       </div>
+
+      {/* Countdown Overlay */}
+      {showCountdown && (
+        <CountdownOverlay
+          onComplete={handleCountdownComplete}
+          onSkip={handleSkipCountdown}
+        />
+      )}
     </div>
   );
 }
