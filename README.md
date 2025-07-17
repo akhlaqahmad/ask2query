@@ -77,8 +77,8 @@ Visit [http://localhost:5173](http://localhost:5173) in your browser.
 ---
 
 ## 📄 Legal & Privacy
-- [Privacy Policy](/privacy)
-- [Terms of Service](/terms)
+- [Privacy Policy](https://text2sql.my/privacy)
+- [Terms of Service](https://text2sql.my/terms)
 
 ---
 
