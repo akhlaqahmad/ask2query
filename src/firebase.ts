@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp, getApps } from "firebase/app";
+import { getAnalytics, isSupported, setUserId } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,7 +11,23 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 
-export { app, analytics }; 
+// Analytics only in browser and after consent
+declare global {
+  interface Window { analyticsConsent?: boolean; }
+}
+
+let analytics: ReturnType<typeof getAnalytics> | null = null;
+if (typeof window !== "undefined" && window.analyticsConsent) {
+  isSupported().then((yes) => {
+    if (yes) {
+      analytics = getAnalytics(app);
+      if (import.meta.env.DEV) {
+        window['FIREBASE_ANALYTICS_DEBUG_MODE'] = true;
+      }
+    }
+  });
+}
+
+export { app, analytics, setUserId }; 
