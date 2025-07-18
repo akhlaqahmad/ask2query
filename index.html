@@ -42,6 +42,14 @@
     
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GOOGLE_TAG_ID%"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '%VITE_GOOGLE_TAG_ID%');
+    </script>
   </head>
   <body>
     <div id="root"></div>
