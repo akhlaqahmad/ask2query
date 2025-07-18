@@ -3,6 +3,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+interface FeedbackData {
+  type: 'bug' | 'feature' | 'general' | 'praise';
+  rating?: number;
+  email?: string;
+  message: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -11,6 +18,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  submitFeedback: (feedbackData: FeedbackData) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -92,6 +100,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     window.location.href = '/login';
   };
 
+  const submitFeedback = async (feedbackData: FeedbackData) => {
+    try {
+      const { error } = await supabase
+        .from('feedback')
+        .insert({
+          user_id: user?.id || null,
+          type: feedbackData.type,
+          rating: feedbackData.rating || null,
+          email: feedbackData.email || null,
+          message: feedbackData.message,
+        });
+
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -100,6 +126,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signInWithGoogle,
     signOut,
+    submitFeedback,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

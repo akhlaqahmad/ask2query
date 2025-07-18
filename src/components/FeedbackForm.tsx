@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,22 +10,26 @@ import { MessageSquare, Send, Star, Bug, Lightbulb, Heart } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useAuth } from '@/contexts/AuthContext';
 
 const FEEDBACK_TYPES = [
   { id: 'bug', label: 'Bug Report', icon: Bug, color: 'text-red-400' },
   { id: 'feature', label: 'Feature Request', icon: Lightbulb, color: 'text-yellow-400' },
   { id: 'general', label: 'General Feedback', icon: MessageSquare, color: 'text-blue-400' },
   { id: 'praise', label: 'Praise', icon: Heart, color: 'text-pink-400' }
-];
+] as const;
+
+type FeedbackType = typeof FEEDBACK_TYPES[number]['id'];
 
 export function FeedbackForm() {
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState('general');
+  const [type, setType] = useState<FeedbackType>('general');
   const [rating, setRating] = useState(0);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { submitFeedback, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +46,16 @@ export function FeedbackForm() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await submitFeedback({
+        type,
+        rating: rating > 0 ? rating : undefined,
+        email: email.trim() || undefined,
+        message: message.trim(),
+      });
+
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Feedback Submitted!",
@@ -57,6 +70,7 @@ export function FeedbackForm() {
       setIsOpen(false);
       
     } catch (error) {
+      console.error('Feedback submission error:', error);
       toast({
         title: "Submission Failed",
         description: "Please try again later or contact support directly.",
@@ -89,7 +103,7 @@ export function FeedbackForm() {
           {/* Feedback Type */}
           <div className="space-y-3">
             <Label className="text-white font-medium">What type of feedback do you have?</Label>
-            <RadioGroup value={type} onValueChange={setType}>
+            <RadioGroup value={type} onValueChange={(value: FeedbackType) => setType(value)}>
               <div className="grid grid-cols-2 gap-3">
                 {FEEDBACK_TYPES.map((feedbackType) => (
                   <div key={feedbackType.id} className="flex items-center space-x-2">
@@ -134,18 +148,21 @@ export function FeedbackForm() {
           {/* Email (Optional) */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-white font-medium">
-              Email (optional)
+              Email {user ? '(optional)' : '(optional - for follow-up)'}
             </Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your.email@example.com"
+              placeholder={user?.email || "your.email@example.com"}
               className="bg-slate-800 border-slate-600 text-white placeholder:text-slate-400"
             />
             <p className="text-xs text-slate-400">
-              Only if you'd like us to follow up on your feedback
+              {user 
+                ? "Leave blank to use your account email for follow-up" 
+                : "Only if you'd like us to follow up on your feedback"
+              }
             </p>
           </div>
 
