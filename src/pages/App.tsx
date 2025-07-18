@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { QueryInput } from "@/components/QueryInput";
 import { SQLResult } from "@/components/SQLResult";
-import { QueryResults } from "@/components/QueryResults";
+import { QueryResults, QueryResult, QueryError } from "@/components/QueryResults";
 import { ExampleQueries } from "@/components/ExampleQueries";
 import { DemoMode } from "@/components/DemoMode";
 import { Footer } from "@/components/Footer";
@@ -22,7 +22,7 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function App() {
   const [query, setQuery] = useState("");
-  const [queryResult, setQueryResult] = useState<any>(null);
+  const [queryResult, setQueryResult] = useState<QueryResult | QueryError | null>(null);
   const [isSchemaBrowserOpen, setIsSchemaBrowserOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [showDemoMode, setShowDemoMode] = useState(false);
@@ -142,8 +142,8 @@ export default function App() {
     setQueryResult(null);
   };
 
-  const handleQueryExecuted = (result: unknown) => {
-    setQueryResult(result as any);
+  const handleQueryExecuted = (result: QueryResult | QueryError) => {
+    setQueryResult(result);
     // Update history with results if we have a current query and SQL
     if (query && generatedSQL && history.length > 0) {
       const latestItem = history[0];
@@ -226,9 +226,6 @@ export default function App() {
                 </div>
                 
                 <div className="text-center mb-12 animate-fade-in">
-                  <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
-                    Text2SQL
-                  </h1>
                   <p className="text-xl md:text-2xl text-slate-300 dark:text-slate-400 font-light">
                     Transform Natural Language to SQL
                   </p>

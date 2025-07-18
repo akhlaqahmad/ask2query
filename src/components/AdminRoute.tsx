@@ -62,12 +62,12 @@ export const AdminRoute = ({ children }: AdminRouteProps) => {
     checkAdminStatus();
   }, [user]);
 
-  useEffect(() => {
-    if (!isLoading && !checkingAdmin && (!user || !isAdmin)) {
-      console.log('[AdminRoute] Redirecting to login - user:', !!user, 'isAdmin:', isAdmin, 'path:', window.location.pathname);
-      window.location.href = '/login';
-    }
-  }, [user, isAdmin, isLoading, checkingAdmin]);
+  // useEffect(() => {
+  //   if (!isLoading && !checkingAdmin && (!user || !isAdmin)) {
+  //     console.log('[AdminRoute] Redirecting to login - user:', !!user, 'isAdmin:', isAdmin, 'path:', window.location.pathname);
+  //     window.location.href = '/login';
+  //   }
+  // }, [user, isAdmin, isLoading, checkingAdmin]);
 
   if (isLoading || checkingAdmin) {
     return (
