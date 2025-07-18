@@ -9,6 +9,7 @@ import { FeaturesSection } from "@/components/FeaturesSection";
 import { UseCasesSection } from "@/components/UseCasesSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { CallToActionSection } from "@/components/CallToActionSection";
+import FAQSection from "@/components/FAQSection";
 import { Footer } from "@/components/Footer";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -116,6 +117,7 @@ const Index = () => {
         <FeaturesSection />
         <UseCasesSection />
         <TestimonialsSection />
+        <FAQSection />
         <CallToActionSection />
         <Footer />
       </div>
