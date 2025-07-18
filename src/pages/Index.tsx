@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SEO } from "@/components/SEO";
@@ -26,6 +25,7 @@ import { Menu, X } from "lucide-react";
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Features", href: "#features" },
+  { label: "Blog", href: "/blog" },
   { label: "FAQ", href: "#faq" },
   { label: "Login", href: "/login" },
 ];
@@ -206,6 +206,15 @@ const Index = () => {
           </li>
           <li>
             <a
+              href="/blog"
+              className="relative px-6 py-2 font-semibold text-slate-800 dark:text-white transition rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60"
+              onClick={() => setMobileOpen(false)}
+            >
+              Blog
+            </a>
+          </li>
+          <li>
+            <a
               href="#faq"
               className={`relative px-6 py-2 font-semibold text-slate-800 dark:text-white transition rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60 ${activeNav === 'Faq' ? 'bg-slate-200 dark:bg-slate-700 shadow-lg' : ''}`}
               aria-current={activeNav === 'Faq' ? "page" : undefined}
@@ -258,6 +267,13 @@ const Index = () => {
               Features
             </a>
             <a
+              href="/blog"
+              className="w-11/12 text-center px-6 py-3 font-semibold text-lg rounded-full transition hover:bg-slate-100 dark:hover:bg-slate-800"
+              onClick={() => setMobileOpen(false)}
+            >
+              Blog
+            </a>
+            <a
               href="#faq"
               className={`w-11/12 text-center px-6 py-3 font-semibold text-lg rounded-full transition hover:bg-slate-100 dark:hover:bg-slate-800 ${activeNav === 'Faq' ? 'bg-slate-200 dark:bg-slate-700 shadow-lg' : ''}`}
               aria-current={activeNav === 'Faq' ? "page" : undefined}
@@ -267,8 +283,7 @@ const Index = () => {
             </a>
             <a
               href="/login"
-              className={`w-11/12 text-center px-6 py-3 font-semibold text-lg rounded-full transition hover:bg-slate-100 dark:hover:bg-slate-800 ${activeNav === 'Login' ? 'bg-slate-200 dark:bg-slate-700 shadow-lg' : ''}`}
-              aria-current={activeNav === 'Login' ? "page" : undefined}
+              className="w-11/12 text-center px-6 py-3 font-semibold text-lg rounded-full transition hover:bg-slate-100 dark:hover:bg-slate-800"
               onClick={() => setMobileOpen(false)}
             >
               Login

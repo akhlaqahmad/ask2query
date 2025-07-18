@@ -15,6 +15,8 @@ import DatabaseUpload from "./pages/DatabaseUpload";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import CookieConsent from './components/CookieConsent';
 
@@ -34,6 +36,8 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<AnimatedLogin />} />
                   <Route path="/animated-login" element={<AnimatedLogin />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route 
                     path="/app" 
                     element={
