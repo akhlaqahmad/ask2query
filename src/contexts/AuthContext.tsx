@@ -1,6 +1,6 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { User, Session, PostgrestError, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 interface FeedbackData {
@@ -14,11 +14,11 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signInWithGoogle: () => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
-  submitFeedback: (feedbackData: FeedbackData) => Promise<{ error: any }>;
+  submitFeedback: (feedbackData: FeedbackData) => Promise<{ error: PostgrestError | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +35,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasRedirected, setHasRedirected] = useState(false);
+  const hasRedirectedRef = useRef(false);
+  const prevUserRef = useRef<User | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -56,7 +59,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  useEffect(() => {
+    // Only redirect after initial login (user changed from null to a value)
+    if (
+      user &&
+      !isLoading &&
+      !hasRedirectedRef.current &&
+      prevUserRef.current === null // just logged in
+    ) {
+      console.log('[AuthProvider] User just logged in:', user.id, 'Current path:', window.location.pathname);
+      (async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        console.log('[AuthProvider] Profile query result:', { data, error });
+        if (!error && data) {
+          const currentPath = window.location.pathname;
+          // Only redirect non-admins to /app, never redirect to /admin automatically
+          if (data.role !== 'admin' && currentPath !== '/app') {
+            console.log('[AuthProvider] Redirecting to /app');
+            window.location.href = '/app';
+            hasRedirectedRef.current = true;
+          } else {
+            console.log('[AuthProvider] No redirect needed.');
+          }
+        } else {
+          console.error('[AuthProvider] Error fetching profile for redirect:', error);
+        }
+      })();
+    }
+    prevUserRef.current = user;
+  }, [user, isLoading]);
+
+  const signIn = async (email: string, password: string): Promise<{ error: AuthError | null }> => {
     setIsLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -66,7 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string): Promise<{ error: AuthError | null }> => {
     setIsLoading(true);
     const redirectUrl = `${window.location.origin}/app`;
     
@@ -81,7 +118,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (): Promise<{ error: AuthError | null }> => {
     setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -95,12 +132,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     setIsLoading(true);
+    console.log('[AuthProvider] Signing out...');
     await supabase.auth.signOut();
+    localStorage.clear(); // <-- Add this line
     setIsLoading(false);
+    console.log('[AuthProvider] Signed out, redirecting to /login');
     window.location.href = '/login';
   };
 
-  const submitFeedback = async (feedbackData: FeedbackData) => {
+  const submitFeedback = async (feedbackData: FeedbackData): Promise<{ error: PostgrestError | null }> => {
     try {
       const { error } = await supabase
         .from('feedback')
@@ -114,7 +154,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       return { error };
     } catch (error) {
-      return { error };
+      return { error: error as PostgrestError };
     }
   };
 

@@ -16,10 +16,10 @@ export const AdminRoute = ({ children }: AdminRouteProps) => {
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      console.log('AdminRoute: Checking admin status for user:', user?.id);
+      console.log('[AdminRoute] Checking admin status for user:', user?.id);
       
       if (!user) {
-        console.log('AdminRoute: No user found');
+        console.log('[AdminRoute] No user found');
         setIsAdmin(false);
         setCheckingAdmin(false);
         setDebugInfo('No user logged in');
@@ -27,31 +27,31 @@ export const AdminRoute = ({ children }: AdminRouteProps) => {
       }
 
       try {
-        console.log('AdminRoute: Fetching profile for user:', user.id);
+        console.log('[AdminRoute] Fetching profile for user:', user.id);
         const { data, error } = await supabase
           .from('profiles')
           .select('role, email')
           .eq('id', user.id)
           .single();
 
-        console.log('AdminRoute: Profile query result:', { data, error });
+        console.log('[AdminRoute] Profile query result:', { data, error });
 
         if (error) {
-          console.error('AdminRoute: Error checking admin status:', error);
+          console.error('[AdminRoute] Error checking admin status:', error);
           setIsAdmin(false);
           setDebugInfo(`Profile error: ${error.message}`);
         } else if (data) {
           const isUserAdmin = data.role === 'admin';
-          console.log('AdminRoute: User role check:', { role: data.role, isAdmin: isUserAdmin, email: data.email });
+          console.log('[AdminRoute] User role check:', { role: data.role, isAdmin: isUserAdmin, email: data.email });
           setIsAdmin(isUserAdmin);
           setDebugInfo(`Role: ${data.role}, Email: ${data.email}`);
         } else {
-          console.log('AdminRoute: No profile found for user');
+          console.log('[AdminRoute] No profile found for user');
           setIsAdmin(false);
           setDebugInfo('No profile found');
         }
       } catch (error) {
-        console.error('AdminRoute: Exception while checking admin status:', error);
+        console.error('[AdminRoute] Exception while checking admin status:', error);
         setIsAdmin(false);
         setDebugInfo(`Exception: ${error}`);
       } finally {
@@ -64,7 +64,7 @@ export const AdminRoute = ({ children }: AdminRouteProps) => {
 
   useEffect(() => {
     if (!isLoading && !checkingAdmin && (!user || !isAdmin)) {
-      console.log('AdminRoute: Redirecting to login - user:', !!user, 'isAdmin:', isAdmin);
+      console.log('[AdminRoute] Redirecting to login - user:', !!user, 'isAdmin:', isAdmin, 'path:', window.location.pathname);
       window.location.href = '/login';
     }
   }, [user, isAdmin, isLoading, checkingAdmin]);
