@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPost, BlogFilters, BLOG_CATEGORIES } from '@/types/blog';
@@ -32,20 +33,24 @@ export function useBlogPosts() {
       setError(null);
       
       console.log('Fetching blog posts...');
+      console.log('Supabase client configured with URL:', supabase.supabaseUrl);
+      console.log('Current user session:', await supabase.auth.getSession());
       
-      // Simplified query using created_at for ordering and explicit column selection
+      // Start with the most basic query possible
+      console.log('Attempting basic query...');
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, excerpt, category, tags, featured_image, author_name, author_email, read_time_minutes, is_published, published_at, created_at, updated_at')
+        .select('id, title, is_published')
         .eq('is_published', true)
-        .order('created_at', { ascending: false });
+        .limit(5);
 
       if (error) {
         console.error('Supabase error details:', {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          code: error.code
+          code: error.code,
+          statusCode: (error as any).statusCode
         });
         throw error;
       }
@@ -56,10 +61,52 @@ export function useBlogPosts() {
         return;
       }
       
-      console.log('Blog posts fetched successfully:', data.length, 'posts');
+      console.log('Basic query successful, found:', data.length, 'posts');
+      
+      // If basic query works, try full query
+      console.log('Attempting full query...');
+      const { data: fullData, error: fullError } = await supabase
+        .from('blog_posts')
+        .select(`
+          id,
+          title,
+          slug,
+          excerpt,
+          category,
+          tags,
+          featured_image,
+          author_name,
+          author_email,
+          read_time_minutes,
+          is_published,
+          published_at,
+          created_at,
+          updated_at
+        `)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (fullError) {
+        console.error('Full query failed:', fullError);
+        // Fall back to basic data structure
+        const basicPosts: BlogPost[] = data.map(post => ({
+          id: post.id,
+          title: post.title,
+          slug: post.id, // fallback slug
+          excerpt: 'Loading...',
+          category: 'introductory',
+          is_published: post.is_published,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }));
+        setPosts(basicPosts);
+        return;
+      }
+      
+      console.log('Full query successful:', fullData.length, 'posts');
       
       // Convert Supabase data to BlogPost type
-      const blogPosts: BlogPost[] = data.map(post => ({
+      const blogPosts: BlogPost[] = fullData.map(post => ({
         ...post,
         category: post.category as string,
         tags: post.tags || []
@@ -84,7 +131,7 @@ export function useBlogPosts() {
       const searchLower = debouncedSearch.toLowerCase();
       filtered = filtered.filter(post => 
         post.title.toLowerCase().includes(searchLower) ||
-        post.excerpt.toLowerCase().includes(searchLower) ||
+        (post.excerpt && post.excerpt.toLowerCase().includes(searchLower)) ||
         post.category.toLowerCase().includes(searchLower) ||
         (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchLower)))
       );
