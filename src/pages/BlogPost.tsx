@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -6,7 +5,7 @@ import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { Footer } from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
-import { BlogPost as BlogPostType, BLOG_CATEGORIES } from '@/types/blog';
+import { BlogPost as BlogPostType, BLOG_CATEGORIES, BlogCategory } from '@/types/blog';
 import { Loader2, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -39,7 +38,13 @@ export default function BlogPost() {
         return;
       }
 
-      setPost(data);
+      // Convert Supabase data to BlogPost type
+      const blogPost: BlogPostType = {
+        ...data,
+        category: data.category as string
+      };
+
+      setPost(blogPost);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch blog post');
     } finally {
@@ -79,7 +84,8 @@ export default function BlogPost() {
     );
   }
 
-  const category = BLOG_CATEGORIES[post.category];
+  // Safe category access with fallback
+  const category = BLOG_CATEGORIES[post.category as BlogCategory] || BLOG_CATEGORIES['introductory'];
   const breadcrumbs = [
     { name: "Home", url: "/" },
     { name: "Blog", url: "/blog" },
@@ -96,7 +102,6 @@ export default function BlogPost() {
       <Breadcrumb items={breadcrumbs} />
       
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        {/* Header */}
         <header className="pt-24 pb-12">
           <div className="container mx-auto px-4 max-w-4xl">
             <Link to="/blog" className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-8">
@@ -104,24 +109,20 @@ export default function BlogPost() {
               Back to Blog
             </Link>
 
-            {/* Category Badge */}
             <div className="mb-6">
               <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r ${category.color}`}>
                 {category.label}
               </span>
             </div>
 
-            {/* Title */}
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
               {post.title}
             </h1>
 
-            {/* Excerpt */}
             <p className="text-xl text-slate-300 mb-8 leading-relaxed">
               {post.excerpt}
             </p>
 
-            {/* Meta Information */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-slate-400 border-t border-slate-700 pt-6">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -143,7 +144,6 @@ export default function BlogPost() {
           </div>
         </header>
 
-        {/* Content */}
         <main className="pb-20">
           <div className="container mx-auto px-4 max-w-4xl">
             <article className="prose prose-lg prose-invert max-w-none">
@@ -170,7 +170,6 @@ export default function BlogPost() {
               </div>
             </article>
 
-            {/* Call to Action */}
             <div className="mt-12 text-center bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-8">
               <h3 className="text-2xl font-bold text-white mb-4">Ready to Try Text2SQL?</h3>
               <p className="text-slate-300 mb-6">

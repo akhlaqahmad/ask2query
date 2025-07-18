@@ -8,8 +8,9 @@ import { TutorialOverlay } from "./TutorialOverlay";
 import { AboutSection } from "./AboutSection";
 import { FeedbackForm } from "./FeedbackForm";
 import { PoweredByOpenAI } from "./PoweredByOpenAI";
-import { HelpCircle, Sparkles } from "lucide-react";
+import { HelpCircle, Sparkles, BookOpen } from "lucide-react";
 import { HistoryItem } from "@/hooks/useQueryHistory";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   isSchemaBrowserOpen?: boolean;
@@ -58,6 +59,16 @@ export function Header({
 
           <div className="flex items-center gap-2">
             <PoweredByOpenAI />
+            <Link to="/blog">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-200"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Blog
+              </Button>
+            </Link>
             <Button 
               variant="ghost" 
               size="sm" 

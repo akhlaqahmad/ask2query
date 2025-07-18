@@ -5,7 +5,7 @@ export interface BlogPost {
   slug: string;
   excerpt: string;
   content?: string;
-  category: 'introductory' | 'product-specific' | 'technical' | 'thought-leadership' | 'data-literacy' | 'security';
+  category: string; // Changed from strict union to string to match Supabase
   tags?: string[];
   featured_image?: string;
   author_name?: string;
@@ -31,3 +31,5 @@ export const BLOG_CATEGORIES = {
   'data-literacy': { label: 'Data Education', color: 'from-indigo-500 to-purple-500' },
   'security': { label: 'Security & Ethics', color: 'from-red-500 to-rose-500' }
 } as const;
+
+export type BlogCategory = keyof typeof BLOG_CATEGORIES;

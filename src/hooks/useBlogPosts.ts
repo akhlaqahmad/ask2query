@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BlogPost, BlogFilters } from '@/types/blog';
+import { BlogPost, BlogFilters, BLOG_CATEGORIES } from '@/types/blog';
 import { useDebounce } from './useDebounce';
 
 export function useBlogPosts() {
@@ -37,7 +37,14 @@ export function useBlogPosts() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+      
+      // Convert Supabase data to BlogPost type
+      const blogPosts: BlogPost[] = (data || []).map(post => ({
+        ...post,
+        category: post.category as string
+      }));
+      
+      setPosts(blogPosts);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch blog posts');
     } finally {

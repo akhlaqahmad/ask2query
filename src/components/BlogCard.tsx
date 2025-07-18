@@ -1,8 +1,7 @@
-
 import { Clock, Calendar, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedCard } from '@/components/AnimatedCard';
-import { BlogPost, BLOG_CATEGORIES } from '@/types/blog';
+import { BlogPost, BLOG_CATEGORIES, BlogCategory } from '@/types/blog';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -10,7 +9,8 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ post, index }: BlogCardProps) {
-  const category = BLOG_CATEGORIES[post.category];
+  // Safe category access with fallback
+  const category = BLOG_CATEGORIES[post.category as BlogCategory] || BLOG_CATEGORIES['introductory'];
   const isComingSoon = !post.is_published;
 
   return (
@@ -28,24 +28,20 @@ export function BlogCard({ post, index }: BlogCardProps) {
       )}
       
       <div className="p-6 h-full flex flex-col">
-        {/* Category Badge */}
         <div className="mb-4">
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r ${category.color}`}>
             {category.label}
           </span>
         </div>
 
-        {/* Title */}
         <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-blue-300 transition-colors duration-300 line-clamp-2">
           {post.title}
         </h3>
 
-        {/* Excerpt */}
         <p className="text-slate-400 mb-4 flex-grow line-clamp-3 group-hover:text-slate-300 transition-colors duration-300">
           {post.excerpt}
         </p>
 
-        {/* Meta information */}
         <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
@@ -59,7 +55,6 @@ export function BlogCard({ post, index }: BlogCardProps) {
           </div>
         </div>
 
-        {/* Read More Link */}
         <div className="mt-auto">
           {isComingSoon ? (
             <div className="flex items-center gap-2 text-slate-500 cursor-not-allowed">
