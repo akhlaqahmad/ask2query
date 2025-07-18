@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPost, BlogFilters, BLOG_CATEGORIES } from '@/types/blog';
@@ -34,29 +33,44 @@ export function useBlogPosts() {
       
       console.log('Fetching blog posts...');
       
+      // Simplified query using created_at for ordering and explicit column selection
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select('id, title, slug, excerpt, category, tags, featured_image, author_name, author_email, read_time_minutes, is_published, published_at, created_at, updated_at')
         .eq('is_published', true)
-        .order('published_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
       
-      console.log('Blog posts fetched:', data?.length || 0, 'posts');
+      if (!data) {
+        console.log('No data returned from Supabase');
+        setPosts([]);
+        return;
+      }
+      
+      console.log('Blog posts fetched successfully:', data.length, 'posts');
       
       // Convert Supabase data to BlogPost type
-      const blogPosts: BlogPost[] = (data || []).map(post => ({
+      const blogPosts: BlogPost[] = data.map(post => ({
         ...post,
-        category: post.category as string
+        category: post.category as string,
+        tags: post.tags || []
       }));
       
       setPosts(blogPosts);
     } catch (err) {
       console.error('Error fetching blog posts:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch blog posts');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch blog posts';
+      setError(errorMessage);
+      setPosts([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
@@ -81,20 +95,20 @@ export function useBlogPosts() {
       filtered = filtered.filter(post => post.category === filters.category);
     }
 
-    // Sort
+    // Sort - using created_at consistently
     switch (filters.sortBy) {
       case 'newest':
         filtered.sort((a, b) => {
-          const dateA = new Date(b.published_at || b.created_at).getTime();
-          const dateB = new Date(a.published_at || a.created_at).getTime();
-          return dateA - dateB;
+          const dateA = new Date(a.created_at).getTime();
+          const dateB = new Date(b.created_at).getTime();
+          return dateB - dateA; // newest first
         });
         break;
       case 'oldest':
         filtered.sort((a, b) => {
-          const dateA = new Date(a.published_at || a.created_at).getTime();
-          const dateB = new Date(b.published_at || b.created_at).getTime();
-          return dateA - dateB;
+          const dateA = new Date(a.created_at).getTime();
+          const dateB = new Date(b.created_at).getTime();
+          return dateA - dateB; // oldest first
         });
         break;
       case 'alphabetical':
