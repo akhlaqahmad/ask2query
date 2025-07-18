@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPost, BlogFilters, BLOG_CATEGORIES } from '@/types/blog';
@@ -33,7 +32,6 @@ export function useBlogPosts() {
       setError(null);
       
       console.log('Fetching blog posts...');
-      console.log('Supabase client configured with URL:', supabase.supabaseUrl);
       console.log('Current user session:', await supabase.auth.getSession());
       
       // Start with the most basic query possible
