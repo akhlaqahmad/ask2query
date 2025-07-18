@@ -1,13 +1,18 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FileText, Eye, Clock, TrendingUp } from 'lucide-react';
+import { BlogPost } from '@/types/blog';
+import { FileText, Eye, Clock, TrendingUp, RefreshCw, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { useSitemap } from '@/hooks/useSitemap';
+import { useToast } from '@/hooks/use-toast';
 
 interface DashboardStats {
   totalPosts: number;
   publishedPosts: number;
   draftPosts: number;
-  recentPosts: any[];
+  recentPosts: BlogPost[];
 }
 
 export function AdminDashboard() {
@@ -18,6 +23,8 @@ export function AdminDashboard() {
     recentPosts: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const { regenerateSitemap, isGenerating, lastGenerated, error } = useSitemap();
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchDashboardStats();
@@ -28,7 +35,7 @@ export function AdminDashboard() {
       // Get all posts
       const { data: allPosts, error } = await supabase
         .from('blog_posts')
-        .select('id, title, is_published, created_at')
+        .select('id, title, slug, excerpt, category, is_published, created_at, updated_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -36,7 +43,13 @@ export function AdminDashboard() {
       const totalPosts = allPosts?.length || 0;
       const publishedPosts = allPosts?.filter(post => post.is_published).length || 0;
       const draftPosts = totalPosts - publishedPosts;
-      const recentPosts = allPosts?.slice(0, 5) || [];
+      
+      // Convert to BlogPost type
+      const recentPosts: BlogPost[] = allPosts?.slice(0, 5).map(post => ({
+        ...post,
+        category: post.category as string,
+        tags: []
+      })) || [];
 
       setStats({
         totalPosts,
@@ -48,6 +61,22 @@ export function AdminDashboard() {
       console.error('Error fetching dashboard stats:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRegenerateSitemap = async () => {
+    const result = await regenerateSitemap();
+    if (result) {
+      toast({
+        title: "Success",
+        description: "Sitemap generated and downloaded successfully"
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: error || "Failed to generate sitemap",
+        variant: "destructive"
+      });
     }
   };
 
@@ -105,6 +134,57 @@ export function AdminDashboard() {
               <p className="text-slate-400 text-sm">Drafts</p>
               <p className="text-2xl font-bold text-white">{stats.draftPosts}</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SEO Tools */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8">
+        <h2 className="text-xl font-bold text-white mb-4">SEO Tools</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg">
+            <div>
+              <h3 className="font-semibold text-white">Sitemap</h3>
+              <p className="text-sm text-slate-400">
+                Generate updated sitemap with all published blog posts
+              </p>
+              {lastGenerated && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Last generated: {lastGenerated.toLocaleDateString()}
+                </p>
+              )}
+            </div>
+            <Button
+              onClick={handleRegenerateSitemap}
+              disabled={isGenerating}
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:bg-slate-600"
+            >
+              {isGenerating ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              Generate
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-between p-4 bg-slate-700/30 rounded-lg">
+            <div>
+              <h3 className="font-semibold text-white">Dynamic Sitemap</h3>
+              <p className="text-sm text-slate-400">
+                View dynamically generated sitemap
+              </p>
+            </div>
+            <Link to="/sitemap" target="_blank">
+              <Button
+                variant="outline"
+                className="border-slate-600 text-slate-300 hover:bg-slate-600"
+              >
+                <ExternalLink className="h-4 w-4" />
+                View
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

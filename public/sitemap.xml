@@ -52,4 +52,27 @@
         <priority>0.5</priority>
     </url>
     
+    <!-- Blog Section -->
+    <url>
+        <loc>https://text2sql.my/blog</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- Blog Posts (Dynamic - Sample entries) -->
+    <url>
+        <loc>https://text2sql.my/blog/getting-started-with-text2sql</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <url>
+        <loc>https://text2sql.my/blog/advanced-sql-generation-techniques</loc>
+        <lastmod>2024-12-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
 </urlset> 
