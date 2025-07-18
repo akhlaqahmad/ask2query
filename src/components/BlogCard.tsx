@@ -1,4 +1,5 @@
-import { Clock, Calendar, ArrowRight } from 'lucide-react';
+
+import { Clock, Calendar, ArrowRight, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { BlogPost, BLOG_CATEGORIES, BlogCategory } from '@/types/blog';
@@ -42,6 +43,23 @@ export function BlogCard({ post, index }: BlogCardProps) {
           {post.excerpt}
         </p>
 
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.tags.slice(0, 3).map((tag, index) => (
+              <span
+                key={index}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700/50 text-slate-300 text-xs rounded-md"
+              >
+                <Tag className="h-3 w-3" />
+                {tag}
+              </span>
+            ))}
+            {post.tags.length > 3 && (
+              <span className="text-slate-500 text-xs">+{post.tags.length - 3} more</span>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
@@ -50,7 +68,7 @@ export function BlogCard({ post, index }: BlogCardProps) {
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              <span>{new Date(post.created_at).toLocaleDateString()}</span>
+              <span>{new Date(post.published_at || post.created_at).toLocaleDateString()}</span>
             </div>
           </div>
         </div>

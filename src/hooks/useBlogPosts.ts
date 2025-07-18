@@ -30,13 +30,22 @@ export function useBlogPosts() {
   const fetchPosts = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      
+      console.log('Fetching blog posts...');
+      
       const { data, error } = await supabase
         .from('blog_posts')
         .select('*')
         .eq('is_published', true)
-        .order('created_at', { ascending: false });
+        .order('published_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Blog posts fetched:', data?.length || 0, 'posts');
       
       // Convert Supabase data to BlogPost type
       const blogPosts: BlogPost[] = (data || []).map(post => ({
@@ -46,6 +55,7 @@ export function useBlogPosts() {
       
       setPosts(blogPosts);
     } catch (err) {
+      console.error('Error fetching blog posts:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch blog posts');
     } finally {
       setIsLoading(false);
@@ -61,7 +71,8 @@ export function useBlogPosts() {
       filtered = filtered.filter(post => 
         post.title.toLowerCase().includes(searchLower) ||
         post.excerpt.toLowerCase().includes(searchLower) ||
-        post.category.toLowerCase().includes(searchLower)
+        post.category.toLowerCase().includes(searchLower) ||
+        (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchLower)))
       );
     }
 
@@ -73,10 +84,18 @@ export function useBlogPosts() {
     // Sort
     switch (filters.sortBy) {
       case 'newest':
-        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        filtered.sort((a, b) => {
+          const dateA = new Date(b.published_at || b.created_at).getTime();
+          const dateB = new Date(a.published_at || a.created_at).getTime();
+          return dateA - dateB;
+        });
         break;
       case 'oldest':
-        filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        filtered.sort((a, b) => {
+          const dateA = new Date(a.published_at || a.created_at).getTime();
+          const dateB = new Date(b.published_at || b.created_at).getTime();
+          return dateA - dateB;
+        });
         break;
       case 'alphabetical':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
