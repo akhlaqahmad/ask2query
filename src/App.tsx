@@ -19,6 +19,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Admin from "./pages/Admin";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/AdminRoute";
 import CookieConsent from './components/CookieConsent';
 
 const queryClient = new QueryClient();
@@ -55,7 +56,14 @@ const App = () => (
                       </ProtectedRoute>
                     } 
                   />
-                  <Route path="/admin/*" element={<Admin />} />
+                  <Route 
+                    path="/admin/*" 
+                    element={
+                      <AdminRoute>
+                        <Admin />
+                      </AdminRoute>
+                    } 
+                  />
                   <Route path="/upload" element={<DatabaseUpload />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
