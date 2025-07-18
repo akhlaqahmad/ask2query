@@ -17,6 +17,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Admin from "./pages/Admin";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import CookieConsent from './components/CookieConsent';
 
@@ -54,6 +55,7 @@ const App = () => (
                       </ProtectedRoute>
                     } 
                   />
+                  <Route path="/admin/*" element={<Admin />} />
                   <Route path="/upload" element={<DatabaseUpload />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
