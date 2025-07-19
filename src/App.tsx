@@ -19,6 +19,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Admin from "./pages/Admin";
 import Sitemap from "./pages/Sitemap";
+import PitchDeck from "./pages/PitchDeck";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import CookieConsent from './components/CookieConsent';
@@ -41,6 +42,7 @@ const App = () => (
                   <Route path="/animated-login" element={<AnimatedLogin />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/pitch-deck" element={<PitchDeck />} />
                   <Route 
                     path="/app" 
                     element={
