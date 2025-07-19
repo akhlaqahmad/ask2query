@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { Footer } from '@/components/Footer';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { supabase } from '@/integrations/supabase/client';
 import { BlogPost as BlogPostType, BLOG_CATEGORIES, BlogCategory } from '@/types/blog';
 import { Loader2, ArrowLeft, Clock, Calendar, User } from 'lucide-react';
@@ -149,9 +150,9 @@ export default function BlogPost() {
             <article className="prose prose-lg prose-invert max-w-none">
               <div className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-8 md:p-12">
                 {post.content ? (
-                  <div 
+                  <MarkdownRenderer 
+                    content={post.content}
                     className="text-slate-300 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: post.content }}
                   />
                 ) : (
                   <div className="text-center py-12">
