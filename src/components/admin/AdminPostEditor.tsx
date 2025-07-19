@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Eye, FileText } from 'lucide-react';
 
 export function AdminPostEditor() {
   const { id } = useParams();
@@ -279,15 +281,38 @@ export function AdminPostEditor() {
 
         <div>
           <Label htmlFor="content" className="text-slate-300">Content</Label>
-          <Textarea
-            id="content"
-            value={formData.content}
-            onChange={(e) => handleContentChange(e.target.value)}
-            className="bg-slate-800/50 border-slate-700 text-white min-h-[400px]"
-            placeholder="Write your post content here... (HTML supported)"
-          />
+          <Tabs defaultValue="write" className="mt-2">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-700">
+              <TabsTrigger value="write" className="data-[state=active]:bg-slate-600">
+                <FileText className="h-4 w-4 mr-2" />
+                Write
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="data-[state=active]:bg-slate-600">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="write" className="mt-4">
+              <Textarea
+                id="content"
+                value={formData.content}
+                onChange={(e) => handleContentChange(e.target.value)}
+                className="bg-slate-800/50 border-slate-700 text-white min-h-[400px]"
+                placeholder="Write your post content here... (Markdown supported)"
+              />
+            </TabsContent>
+            <TabsContent value="preview" className="mt-4">
+              <div className="min-h-[400px] bg-slate-800/50 border border-slate-700 rounded-md p-4">
+                {formData.content ? (
+                  <MarkdownRenderer content={formData.content} />
+                ) : (
+                  <p className="text-slate-400 italic">No content to preview. Start writing in the Write tab.</p>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
           <p className="text-sm text-slate-400 mt-2">
-            Estimated read time: {formData.read_time_minutes} minutes
+            Estimated read time: {formData.read_time_minutes} minutes | Supports Markdown formatting
           </p>
         </div>
 
